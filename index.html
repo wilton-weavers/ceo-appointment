@@ -6,6 +6,19 @@
 <title>Wilton Weavers — CEO Scheduling</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- ════════════════════════════════════════════════════════════
+     🔥 FIREBASE SETUP INSTRUCTIONS
+     ════════════════════════════════════════════════════════════
+     1. Go to https://console.firebase.google.com/
+     2. Click "Add project" → name it "wilton-weavers" → Create
+     3. Click "Firestore Database" in left menu → "Create database"
+        → Start in TEST MODE → Choose a region → Enable
+     4. Click the ⚙ gear icon → "Project settings"
+     5. Scroll to "Your apps" → click </> (Web) → Register app
+     6. Copy the firebaseConfig object values below
+     ════════════════════════════════════════════════════════════ -->
+
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -48,166 +61,95 @@
     z-index: 0;
   }
 
-  /* ── HEADER ── */
-  header {
+  /* ── LOADING OVERLAY ── */
+  #loadingOverlay {
+    position: fixed; inset: 0;
     background: var(--navy);
-    position: relative;
-    overflow: hidden;
-    padding: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s;
   }
-  header::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
+  #loadingOverlay.hidden { opacity: 0; pointer-events: none; }
+  .loading-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--gold-light);
+    font-style: italic;
+    margin-bottom: 1rem;
   }
-  .header-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2.5rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    z-index: 1;
-  }
-  .brand { display: flex; align-items: center; gap: 1.2rem; }
-  .brand-monogram {
-    width: 54px; height: 54px;
-    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  .loading-bar {
+    width: 200px; height: 2px;
+    background: rgba(201,169,110,0.2);
     border-radius: 2px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    color: var(--navy);
-    font-weight: 700;
-    letter-spacing: -1px;
-    flex-shrink: 0;
+    overflow: hidden;
   }
-  .brand-text h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.35rem;
-    font-weight: 600;
-    color: var(--warm-white);
-    letter-spacing: 0.04em;
+  .loading-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    animation: loadAnim 1.5s ease-in-out infinite;
   }
-  .brand-text p {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 0.82rem;
-    color: var(--gold-light);
-    letter-spacing: 0.18em;
+  @keyframes loadAnim {
+    0% { width: 0%; margin-left: 0; }
+    50% { width: 60%; margin-left: 20%; }
+    100% { width: 0%; margin-left: 100%; }
+  }
+  .loading-text {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    margin-top: 1px;
   }
+
+  /* ── FIREBASE CONFIG BANNER ── */
+  #configBanner {
+    background: #7c2d12;
+    color: #fde8d8;
+    padding: 1rem 2rem;
+    text-align: center;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    display: none;
+    position: relative;
+    z-index: 10;
+  }
+  #configBanner strong { color: #fbbf24; }
+  #configBanner code { background: rgba(0,0,0,0.3); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.8rem; }
+
+  /* ── HEADER ── */
+  header { background: var(--navy); position: relative; overflow: hidden; padding: 0; }
+  header::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent); }
+  .header-inner { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
+  .brand { display: flex; align-items: center; gap: 1.2rem; }
+  .brand-monogram { width: 54px; height: 54px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--navy); font-weight: 700; letter-spacing: -1px; flex-shrink: 0; }
+  .brand-text h1 { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 600; color: var(--warm-white); letter-spacing: 0.04em; }
+  .brand-text p { font-family: 'Cormorant Garamond', serif; font-size: 0.82rem; color: var(--gold-light); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 1px; }
   .header-ceo { text-align: right; }
-  .header-ceo h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.15rem;
-    color: var(--warm-white);
-    font-weight: 400;
-  }
-  .header-ceo p {
-    font-size: 0.78rem;
-    color: var(--gold-light);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
+  .header-ceo h2 { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--warm-white); font-weight: 400; }
+  .header-ceo p { font-size: 0.78rem; color: var(--gold-light); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; }
 
   /* ── HERO STRIP ── */
-  .hero-strip {
-    background: var(--navy-mid);
-    padding: 1.2rem 2rem;
-    text-align: center;
-    border-bottom: 1px solid rgba(201,169,110,0.2);
-  }
-  .hero-strip p {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.05rem;
-    color: var(--gold-pale);
-    letter-spacing: 0.08em;
-    font-style: italic;
-  }
+  .hero-strip { background: var(--navy-mid); padding: 1.2rem 2rem; text-align: center; border-bottom: 1px solid rgba(201,169,110,0.2); }
+  .hero-strip p { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: var(--gold-pale); letter-spacing: 0.08em; font-style: italic; }
 
   /* ── MAIN LAYOUT ── */
-  .main-grid {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 3rem 2rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2.5rem;
-    position: relative;
-    z-index: 1;
-  }
+  .main-grid { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; position: relative; z-index: 1; }
 
   /* ── PANEL BASE ── */
-  .panel {
-    background: var(--warm-white);
-    border: 1px solid rgba(201,169,110,0.25);
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: 0 4px 24px rgba(15,28,46,0.07);
-    transition: box-shadow 0.3s;
-  }
+  .panel { background: var(--warm-white); border: 1px solid rgba(201,169,110,0.25); border-radius: 4px; overflow: hidden; box-shadow: 0 4px 24px rgba(15,28,46,0.07); transition: box-shadow 0.3s; }
   .panel:hover { box-shadow: 0 8px 40px rgba(15,28,46,0.12); }
-  .panel-header {
-    background: var(--navy);
-    padding: 1.4rem 1.8rem;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
-  .panel-header .icon {
-    width: 32px; height: 32px;
-    background: rgba(201,169,110,0.15);
-    border-radius: 2px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1rem;
-    flex-shrink: 0;
-  }
-  .panel-header h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--warm-white);
-    letter-spacing: 0.02em;
-  }
-  .panel-header p {
-    font-size: 0.73rem;
-    color: var(--gold-light);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-top: 1px;
-  }
+  .panel-header { background: var(--navy); padding: 1.4rem 1.8rem; display: flex; align-items: center; gap: 0.8rem; }
+  .panel-header .icon { width: 32px; height: 32px; background: rgba(201,169,110,0.15); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+  .panel-header h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--warm-white); letter-spacing: 0.02em; }
+  .panel-header p { font-size: 0.73rem; color: var(--gold-light); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 1px; }
   .panel-body { padding: 1.8rem; }
 
   /* ── AVAILABILITY ── */
   .availability-panel { grid-column: 1; }
-  .week-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.2rem;
-  }
-  .week-nav-label {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.95rem;
-    color: var(--navy);
-    font-style: italic;
-  }
-  .week-btn {
-    background: none;
-    border: 1px solid rgba(201,169,110,0.4);
-    color: var(--gold);
-    width: 30px; height: 30px;
-    border-radius: 2px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center;
-  }
+  .week-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+  .week-nav-label { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--navy); font-style: italic; }
+  .week-btn { background: none; border: 1px solid rgba(201,169,110,0.4); color: var(--gold); width: 30px; height: 30px; border-radius: 2px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
   .week-btn:hover { background: var(--navy); border-color: var(--navy); color: var(--gold-light); }
   .slots-grid { display: flex; flex-direction: column; gap: 0.7rem; }
   .day-row { display: grid; grid-template-columns: 100px 1fr; align-items: start; gap: 0.8rem; }
@@ -215,56 +157,17 @@
   .day-label.past-day-label { color: var(--past); opacity: 0.7; }
   .day-date { font-family: 'Playfair Display', serif; font-size: 0.75rem; color: var(--gold); display: block; }
   .day-label.past-day-label .day-date { color: var(--past); }
-  .past-badge {
-    display: inline-block;
-    font-size: 0.6rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--past);
-    background: var(--past-bg);
-    border: 1px solid rgba(192,57,43,0.2);
-    border-radius: 2px;
-    padding: 0.1rem 0.35rem;
-    margin-top: 0.2rem;
-  }
+  .past-badge { display: inline-block; font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--past); background: var(--past-bg); border: 1px solid rgba(192,57,43,0.2); border-radius: 2px; padding: 0.1rem 0.35rem; margin-top: 0.2rem; }
   .time-slots { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-  .slot {
-    padding: 0.3rem 0.7rem;
-    border-radius: 2px;
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    border: 1px solid transparent;
-    transition: all 0.2s;
-    white-space: nowrap;
-    cursor: default;
-    position: relative;
-    overflow: hidden;
-  }
+  .slot { padding: 0.3rem 0.7rem; border-radius: 2px; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.04em; border: 1px solid transparent; transition: all 0.2s; white-space: nowrap; cursor: default; position: relative; overflow: hidden; }
   .slot.free { background: var(--free-bg); color: var(--free); border-color: rgba(45,122,95,0.2); }
   .slot.free:not(.past-slot):hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(45,122,95,0.15); }
   .slot.busy { background: var(--busy-bg); color: var(--busy); border-color: rgba(139,58,58,0.2); text-decoration: line-through; opacity: 0.8; }
   .slot.scheduled { background: var(--scheduled-bg); color: var(--scheduled); border-color: rgba(26,74,138,0.2); font-style: italic; }
-
-  /* Past slot styling — red tint */
-  .slot.past-slot {
-    background: var(--past-bg) !important;
-    color: var(--past) !important;
-    border-color: rgba(192,57,43,0.2) !important;
-    opacity: 0.55 !important;
-    text-decoration: line-through !important;
-    cursor: not-allowed !important;
-    pointer-events: none;
-  }
-
+  .slot.past-slot { background: var(--past-bg) !important; color: var(--past) !important; border-color: rgba(192,57,43,0.2) !important; opacity: 0.55 !important; text-decoration: line-through !important; cursor: not-allowed !important; pointer-events: none; }
   .slot.ceo-editable { cursor: pointer; user-select: none; }
 
-  .legend {
-    display: flex; gap: 1rem;
-    margin-top: 1.2rem; padding-top: 1.2rem;
-    border-top: 1px solid rgba(201,169,110,0.15);
-    flex-wrap: wrap;
-  }
+  .legend { display: flex; gap: 1rem; margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid rgba(201,169,110,0.15); flex-wrap: wrap; }
   .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; color: var(--text-muted); }
   .legend-dot { width: 8px; height: 8px; border-radius: 1px; }
   .legend-dot.free { background: var(--free); }
@@ -275,151 +178,39 @@
   /* ── MEETINGS PANEL ── */
   .meetings-panel { grid-column: 2; grid-row: 1 / 3; }
   .meeting-list { display: flex; flex-direction: column; gap: 1rem; }
-  .meeting-card {
-    border: 1px solid rgba(201,169,110,0.2);
-    border-radius: 3px;
-    padding: 1rem 1.2rem;
-    background: var(--cream);
-    position: relative;
-    overflow: hidden;
-    animation: slideIn 0.4s ease;
-  }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .meeting-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: linear-gradient(180deg, var(--gold), var(--gold-light));
-  }
+  .meeting-card { border: 1px solid rgba(201,169,110,0.2); border-radius: 3px; padding: 1rem 1.2rem; background: var(--cream); position: relative; overflow: hidden; animation: slideIn 0.4s ease; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .meeting-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--gold), var(--gold-light)); }
   .meeting-card .mc-name { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--navy); font-weight: 600; margin-bottom: 0.2rem; }
   .meeting-card .mc-org { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem; }
   .meeting-card .mc-datetime { font-size: 0.78rem; color: var(--gold); font-weight: 500; letter-spacing: 0.03em; }
-  .meeting-card .mc-badge {
-    display: inline-block;
-    margin-top: 0.5rem;
-    padding: 0.2rem 0.6rem;
-    border-radius: 2px;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    background: var(--scheduled-bg);
-    color: var(--scheduled);
-  }
-  
-  .mc-cancel-btn {
-    display: none;
-    margin-top: 0.6rem;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.68rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    background: transparent;
-    color: var(--busy);
-    border: 1px solid rgba(139,58,58,0.3);
-    padding: 0.25rem 0.7rem;
-    border-radius: 2px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
+  .meeting-card .mc-badge { display: inline-block; margin-top: 0.5rem; padding: 0.2rem 0.6rem; border-radius: 2px; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--scheduled-bg); color: var(--scheduled); }
+  .mc-cancel-btn { display: none; margin-top: 0.6rem; font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; background: transparent; color: var(--busy); border: 1px solid rgba(139,58,58,0.3); padding: 0.25rem 0.7rem; border-radius: 2px; cursor: pointer; transition: all 0.2s; }
   .mc-cancel-btn:hover { background: var(--busy); color: white; }
   body.ceo-active .mc-cancel-btn { display: inline-block; }
-
   .empty-state { text-align: center; padding: 2rem 1rem; color: var(--text-muted); }
   .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 0.8rem; opacity: 0.4; }
   .empty-state p { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-style: italic; }
 
   /* ── QUICK BOOKING FORM ── */
   .quick-book-panel { grid-column: 1 / 3; scroll-margin-top: 2rem; }
-  .quick-book-container {
-    background: var(--cream);
-    border: 2px dashed rgba(201,169,110,0.3);
-    border-radius: 3px;
-    padding: 1.2rem;
-    margin-bottom: 1.2rem;
-    display: none;
-    animation: slideInUp 0.5s ease;
-  }
-  @keyframes slideInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes highlight-pulse {
-    0% { border-color: rgba(201,169,110,0.3); box-shadow: 0 0 0 0 rgba(201,169,110,0); }
-    50% { box-shadow: 0 0 0 8px rgba(201,169,110,0.1); }
-    100% { border-color: rgba(201,169,110,0.5); box-shadow: 0 0 0 0 rgba(201,169,110,0); }
-  }
-  .quick-book-container.active {
-    display: block;
-    animation: slideInUp 0.5s ease, highlight-pulse 0.8s ease-out;
-  }
+  .quick-book-container { background: var(--cream); border: 2px dashed rgba(201,169,110,0.3); border-radius: 3px; padding: 1.2rem; margin-bottom: 1.2rem; display: none; }
+  @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes highlight-pulse { 0% { border-color: rgba(201,169,110,0.3); box-shadow: 0 0 0 0 rgba(201,169,110,0); } 50% { box-shadow: 0 0 0 8px rgba(201,169,110,0.1); } 100% { border-color: rgba(201,169,110,0.5); box-shadow: 0 0 0 0 rgba(201,169,110,0); } }
+  .quick-book-container.active { display: block; animation: slideInUp 0.5s ease, highlight-pulse 0.8s ease-out; }
   .quick-book-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--navy); font-weight: 600; margin-bottom: 0.8rem; }
-  .quick-book-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.8rem;
-    margin-bottom: 1rem;
-  }
-  .quick-book-grid input {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.85rem;
-    padding: 0.6rem 0.8rem;
-    border: 1px solid rgba(201,169,110,0.3);
-    border-radius: 2px;
-    background: var(--warm-white);
-    color: var(--text-dark);
-    outline: none;
-    transition: border-color 0.2s;
-  }
+  .quick-book-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
+  .quick-book-grid input { font-family: 'DM Sans', sans-serif; font-size: 0.85rem; padding: 0.6rem 0.8rem; border: 1px solid rgba(201,169,110,0.3); border-radius: 2px; background: var(--warm-white); color: var(--text-dark); outline: none; transition: border-color 0.2s; }
   .quick-book-grid input:focus { border-color: var(--gold); }
   .quick-book-actions { display: flex; gap: 0.6rem; }
-  .quick-book-actions button {
-    flex: 1;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 0.6rem 1rem;
-    border-radius: 2px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: 1px solid rgba(201,169,110,0.3);
-  }
+  .quick-book-actions button { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.6rem 1rem; border-radius: 2px; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(201,169,110,0.3); }
   .quick-book-actions .book-btn { background: var(--navy); color: var(--gold-light); border-color: var(--navy); }
   .quick-book-actions .book-btn:hover { background: transparent; color: var(--navy); }
   .quick-book-actions .cancel-btn { background: transparent; color: var(--text-muted); }
   .quick-book-actions .cancel-btn:hover { background: var(--cream); }
-
-  /* ── ADD SECOND SLOT BUTTON ── */
-  .add-second-slot-btn {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    background: linear-gradient(135deg, rgba(201,169,110,0.2), rgba(201,169,110,0.1));
-    color: var(--gold);
-    border: 1px dashed rgba(201,169,110,0.5);
-    padding: 0.5rem 0.8rem;
-    border-radius: 2px;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 100%;
-    margin-bottom: 0.8rem;
-  }
+  .add-second-slot-btn { font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; background: linear-gradient(135deg, rgba(201,169,110,0.2), rgba(201,169,110,0.1)); color: var(--gold); border: 1px dashed rgba(201,169,110,0.5); padding: 0.5rem 0.8rem; border-radius: 2px; cursor: pointer; transition: all 0.2s; width: 100%; margin-bottom: 0.8rem; }
   .add-second-slot-btn:hover { background: linear-gradient(135deg, rgba(201,169,110,0.3), rgba(201,169,110,0.2)); border-color: var(--gold); }
   .add-second-slot-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  /* ── SECTION DIVIDER ── */
-  .section-divider { display: flex; align-items: center; gap: 1rem; margin: 0.5rem 0 1.2rem; }
-  .section-divider span { font-family: 'Cormorant Garamond', serif; font-size: 0.82rem; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap; font-style: italic; }
-  .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,169,110,0.3), transparent); }
 
   /* ── CEO LOGIN ── */
   .ceo-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(201,169,110,0.15); }
@@ -441,18 +232,7 @@
   .add-slot-row select, .add-slot-row input[type="time"] { font-size: 0.78rem; padding: 0.3rem 0.5rem; width: auto; }
 
   /* ── TOAST ── */
-  .toast {
-    position: fixed; bottom: 2rem; right: 2rem;
-    background: var(--navy); color: var(--warm-white);
-    border: 1px solid rgba(201,169,110,0.3);
-    padding: 1rem 1.5rem; border-radius: 3px;
-    font-size: 0.85rem;
-    box-shadow: 0 8px 32px rgba(15,28,46,0.25);
-    transform: translateY(120px); opacity: 0;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 1000; max-width: 320px;
-    border-left: 3px solid var(--gold);
-  }
+  .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--navy); color: var(--warm-white); border: 1px solid rgba(201,169,110,0.3); padding: 1rem 1.5rem; border-radius: 3px; font-size: 0.85rem; box-shadow: 0 8px 32px rgba(15,28,46,0.25); transform: translateY(120px); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 1000; max-width: 320px; border-left: 3px solid var(--gold); }
   .toast.show { transform: translateY(0); opacity: 1; }
   .toast strong { color: var(--gold-light); display: block; margin-bottom: 0.2rem; }
   .toast.error-toast { border-left-color: var(--busy); }
@@ -462,6 +242,7 @@
   .status-indicator { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; animation: pulse 2s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
   .status-indicator.online { background: var(--free); }
+  .status-indicator.offline { background: var(--busy); }
   .status-text { font-size: 0.8rem; color: var(--text-muted); }
 
   /* ── MODAL ── */
@@ -476,7 +257,6 @@
   .modal-actions .btn-secondary { background: transparent; color: var(--text-muted); }
   .modal-actions .btn-secondary:hover { background: var(--cream); }
   .modal-actions .btn-primary { background: var(--navy); color: var(--gold-light); border-color: var(--navy); }
-  .modal-actions .btn-primary:hover { background: transparent; color: var(--navy); }
   .modal-actions .btn-danger { background: var(--busy); color: white; border-color: var(--busy); }
   .modal-actions .btn-danger:hover { opacity: 0.85; }
 
@@ -485,7 +265,6 @@
   footer p { font-family: 'Cormorant Garamond', serif; font-size: 0.85rem; color: rgba(201,169,110,0.5); letter-spacing: 0.08em; }
   footer .footer-logo { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--gold-light); margin-bottom: 0.4rem; font-style: italic; }
 
-  /* ── RESPONSIVE ── */
   @media (max-width: 768px) {
     .main-grid { grid-template-columns: 1fr; padding: 1.5rem 1rem; }
     .meetings-panel { grid-column: 1; grid-row: auto; }
@@ -497,6 +276,19 @@
 </style>
 </head>
 <body>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay">
+  <div class="loading-logo">Wilton Weavers</div>
+  <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+  <div class="loading-text">Connecting to schedule…</div>
+</div>
+
+<!-- Firebase Config Error Banner -->
+<div id="configBanner">
+  ⚠️ <strong>Firebase not configured.</strong> Please open this file and fill in your Firebase project credentials in the <code>firebaseConfig</code> object near the bottom of the &lt;script&gt; tag. 
+  See the setup instructions in the HTML comments. Until then, data won't sync across users.
+</div>
 
 <!-- Header -->
 <header>
@@ -519,7 +311,6 @@
   <p>"Every thread of our success is woven through meaningful partnerships."</p>
 </div>
 
-<!-- Main Grid -->
 <div class="main-grid">
 
   <!-- AVAILABILITY PANEL -->
@@ -533,8 +324,8 @@
     </div>
     <div class="panel-body">
       <div class="status-row">
-        <div class="status-indicator online"></div>
-        <span class="status-text">Schedule last updated: <strong id="lastUpdated"></strong></span>
+        <div class="status-indicator online" id="connIndicator"></div>
+        <span class="status-text" id="connStatus">Connecting to live schedule…</span>
       </div>
       <div class="week-nav">
         <button class="week-btn" onclick="changeWeek(-1)">←</button>
@@ -542,39 +333,31 @@
         <button class="week-btn" onclick="changeWeek(1)">→</button>
       </div>
       <div class="slots-grid" id="slotsGrid"></div>
-
       <div class="legend">
         <div class="legend-item"><div class="legend-dot free"></div> Available</div>
         <div class="legend-item"><div class="legend-dot busy"></div> Unavailable</div>
         <div class="legend-item"><div class="legend-dot scheduled"></div> Scheduled</div>
-        <div class="legend-item"><div class="legend-dot past"></div> Past (Expired)</div>
+        <div class="legend-item"><div class="legend-dot past"></div> Past</div>
       </div>
-
-      <!-- CEO Controls -->
       <div class="ceo-controls">
-        <div style="margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid rgba(201,169,110,0.15);">
-          <div style="font-size: 0.73rem; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.8rem; font-style: italic;">⚙ CEO Controls</div>
+        <div style="margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid rgba(201,169,110,0.15);">
+          <div style="font-size:0.73rem;color:var(--gold);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.8rem;font-style:italic;">⚙ CEO Controls</div>
           <div class="add-slot-row visible">
             <select id="addDay" style="flex:1"></select>
             <input type="time" id="addTime" value="09:00" />
-            <select id="addStatus">
-              <option value="free">Free</option>
-              <option value="busy">Busy</option>
-            </select>
+            <select id="addStatus"><option value="free">Free</option><option value="busy">Busy</option></select>
             <button class="add-slot-btn" onclick="addSlot()">+ Add</button>
           </div>
         </div>
       </div>
-
-      <!-- CEO Login -->
       <div class="ceo-section">
         <div class="ceo-hint" id="ceoHint" onclick="toggleLogin()">⚙ CEO Portal Access</div>
         <div class="pw-row" id="pwRow">
           <input type="password" id="ceoPassword" placeholder="Enter access key" autocomplete="off" />
           <button id="ceoLoginBtn" onclick="ceoLogin()">Access</button>
         </div>
-        <div id="ceoLoggedIn" style="display:none; text-align:center; padding-top:0.4rem;">
-          <span style="font-size:0.75rem; color:var(--free);">✓ CEO Mode Active</span>
+        <div id="ceoLoggedIn" style="display:none;text-align:center;padding-top:0.4rem;">
+          <span style="font-size:0.75rem;color:var(--free);">✓ CEO Mode Active</span>
           <button onclick="ceoLogout()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.72rem;margin-left:0.5rem;text-decoration:underline;">Logout</button>
         </div>
       </div>
@@ -585,17 +368,11 @@
   <div class="panel meetings-panel">
     <div class="panel-header">
       <div class="icon">📮</div>
-      <div>
-        <h3>Confirmed Meetings</h3>
-        <p>Scheduled Appointments</p>
-      </div>
+      <div><h3>Confirmed Meetings</h3><p>Scheduled Appointments</p></div>
     </div>
     <div class="panel-body">
       <div id="meetingList" class="meeting-list">
-        <div class="empty-state">
-          <div class="empty-icon">📋</div>
-          <p>No meetings scheduled yet</p>
-        </div>
+        <div class="empty-state"><div class="empty-icon">📋</div><p>Loading meetings…</p></div>
       </div>
     </div>
   </div>
@@ -604,32 +381,27 @@
   <div class="panel quick-book-panel">
     <div class="panel-header">
       <div class="icon">✉</div>
-      <div>
-        <h3 id="bookTitle">Book a Meeting</h3>
-        <p id="bookSubtitle">Select an Available Time Slot</p>
-      </div>
+      <div><h3>Book a Meeting</h3><p>Select an Available Time Slot</p></div>
     </div>
     <div class="panel-body">
       <div class="quick-book-container" id="quickBookContainer">
         <div class="quick-book-title" id="bookingTitle"></div>
-        <div style="background: var(--free-bg); border: 1px solid rgba(45,122,95,0.2); padding: 0.6rem 0.8rem; border-radius: 2px; margin-bottom: 1rem; font-size: 0.78rem; color: var(--free);">
+        <div style="background:var(--free-bg);border:1px solid rgba(45,122,95,0.2);padding:0.6rem 0.8rem;border-radius:2px;margin-bottom:1rem;font-size:0.78rem;color:var(--free);">
           <strong>Selected Slot(s):</strong> <span id="selectedSlotDisplay">None</span>
         </div>
         <div class="quick-book-grid">
-          <input type="text" id="visitorName" placeholder="Your Full Name" style="grid-column: 1 / -1;" />
+          <input type="text" id="visitorName" placeholder="Your Full Name" style="grid-column:1/-1;" />
         </div>
-        <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.8rem; font-style: italic;">
-          You can select up to 2 consecutive time slots. Click the first slot, then click the next one to extend the meeting duration.
+        <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.8rem;font-style:italic;">
+          Select up to 2 consecutive slots for a 1-hour meeting.
         </div>
-        <button class="add-second-slot-btn" id="addSecondSlotBtn" onclick="addSecondSlot()" style="display: none;">
-          ⏱ Extend to 1 Hour
-        </button>
+        <button class="add-second-slot-btn" id="addSecondSlotBtn" onclick="addSecondSlot()" style="display:none;">⏱ Extend to 1 Hour</button>
         <div class="quick-book-actions">
           <button class="book-btn" onclick="confirmBooking()">✓ Confirm Booking</button>
           <button class="cancel-btn" onclick="cancelBooking()">✗ Cancel</button>
         </div>
       </div>
-      <div id="noBookingMsg" style="text-align:center; color:var(--text-muted); padding:1rem 0; font-family:'Cormorant Garamond', serif; font-style:italic;">
+      <div id="noBookingMsg" style="text-align:center;color:var(--text-muted);padding:1rem 0;font-family:'Cormorant Garamond',serif;font-style:italic;">
         Click on any free upcoming time slot above to book a meeting
       </div>
     </div>
@@ -637,16 +409,13 @@
 
 </div>
 
-<!-- Footer -->
 <footer>
   <p class="footer-logo">Wilton Weavers</p>
   <p>© 2026 Wilton Weavers Pvt Ltd. · CEO Executive Office</p>
 </footer>
 
-<!-- Toast -->
 <div class="toast" id="toast"><strong id="toastTitle"></strong><span id="toastMsg"></span></div>
 
-<!-- Cancel Meeting Modal (CEO only) -->
 <div class="modal-overlay" id="cancelModal">
   <div class="modal">
     <h3>Cancel Confirmed Meeting</h3>
@@ -658,134 +427,217 @@
   </div>
 </div>
 
+<!-- Firebase SDK (v9 compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <script>
-// ── CONSTANTS ─────────────────────────────────────────────────
-// Hardcoded CEO password
+// ════════════════════════════════════════════════════════════
+// 🔥 PASTE YOUR FIREBASE CONFIG HERE
+// Get it from: Firebase Console → Project Settings → Your Apps → SDK setup
+// ════════════════════════════════════════════════════════════
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAfQUMcHlpvilbEm__tVCnFReEGWvp1ZPY",
+  authDomain: "ceo-website-fdae5.firebaseapp.com",
+  projectId: "ceo-website-fdae5",
+  storageBucket: "ceo-website-fdae5.firebasestorage.app",
+  messagingSenderId: "744280666340",
+  appId: "1:744280666340:web:d5a2e1683a31c2fc41bcf1",
+  measurementId: "G-6XK7QLY0J0"
+};
+// ════════════════════════════════════════════════════════════
+
+// ── CONSTANTS ────────────────────────────────────────────────
 const CEO_PASSWORD = 'Wilton@2026';
-
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-
-// Fixed time slots — same every day, Mon–Sat
 const TIME_SLOTS = [
-  '09:00','09:30',
-  '10:00','10:30','11:00','11:30',
-  '12:00','12:30',
-  '13:00','13:30',
-  '14:00','14:30','15:00','15:30',
-  '16:00','16:30',
-  '17:00','17:30'
+  '09:00','09:30','10:00','10:30','11:00','11:30',
+  '12:00','12:30','13:00','13:30','14:00','14:30',
+  '15:00','15:30','16:00','16:30','17:00','17:30'
 ];
 
-// ── STATE ─────────────────────────────────────────────────────
+// ── STATE ────────────────────────────────────────────────────
 let isCEO = false;
 let currentWeekOffset = 0;
 let _selectedDate = null;
 let _selectedTimes = [];
+let schedule = {}; // { "2026-02-25": { "09:00": "free", ... } }
+let meetings = []; // array of meeting objects
+let db = null;
+let unsubscribeSchedule = null;
+let unsubscribeMeetings = null;
 
-let schedule = JSON.parse(localStorage.getItem('ww_schedule') || '{}');
-let meetings = JSON.parse(localStorage.getItem('ww_meetings') || '[]');
+// ── FIREBASE INIT ────────────────────────────────────────────
+function initFirebase() {
+  const isConfigured = firebaseConfig.apiKey !== 'PASTE_YOUR_API_KEY_HERE';
 
-function saveData() {
-  localStorage.setItem('ww_schedule', JSON.stringify(schedule));
-  localStorage.setItem('ww_meetings', JSON.stringify(meetings));
+  if (!isConfigured) {
+    document.getElementById('configBanner').style.display = 'block';
+    hideLoading();
+    // Fall back to localStorage so the page still works for one person
+    schedule = JSON.parse(localStorage.getItem('ww_schedule') || '{}');
+    meetings = JSON.parse(localStorage.getItem('ww_meetings') || '[]');
+    renderSlots();
+    renderMeetings();
+    setConnStatus(false);
+    return;
+  }
+
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+
+    // Enable offline persistence (optional but nice)
+    db.enablePersistence().catch(() => {});
+
+    // Real-time listener for schedule
+    unsubscribeSchedule = db.collection('schedule').onSnapshot(snapshot => {
+      schedule = {};
+      snapshot.forEach(doc => {
+        schedule[doc.id] = doc.data();
+      });
+      renderSlots();
+      renderMeetings(); // re-render meetings too (status may have changed)
+      hideLoading();
+      setConnStatus(true);
+    }, err => {
+      console.error('Schedule listener error:', err);
+      setConnStatus(false);
+      hideLoading();
+    });
+
+    // Real-time listener for meetings
+    unsubscribeMeetings = db.collection('meetings').orderBy('bookedAt', 'desc').onSnapshot(snapshot => {
+      meetings = [];
+      snapshot.forEach(doc => {
+        meetings.push({ firestoreId: doc.id, ...doc.data() });
+      });
+      renderMeetings();
+    }, err => {
+      console.error('Meetings listener error:', err);
+    });
+
+  } catch (e) {
+    console.error('Firebase init error:', e);
+    hideLoading();
+    setConnStatus(false);
+    showToast('Connection Error', 'Could not connect to Firebase. Check your config.', true);
+  }
 }
 
-// ── DATE HELPERS ──────────────────────────────────────────────
-function todayStr() {
-  return new Date().toISOString().split('T')[0];
+function setConnStatus(online) {
+  const dot = document.getElementById('connIndicator');
+  const txt = document.getElementById('connStatus');
+  if (online) {
+    dot.className = 'status-indicator online';
+    txt.innerHTML = 'live';
+  } else {
+    dot.className = 'status-indicator offline';
+    txt.innerHTML = 'Offline — not syncing to other users';
+  }
 }
 
-function isDatePast(dateStr) {
-  // Compare calendar dates only (ignore time)
-  return dateStr < todayStr();
+function hideLoading() {
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.classList.add('hidden');
+  setTimeout(() => overlay.style.display = 'none', 500);
 }
 
-function isToday(dateStr) {
-  return dateStr === todayStr();
+// ── FIRESTORE SAVE HELPERS ───────────────────────────────────
+async function saveScheduleDay(dateStr) {
+  if (!db) {
+    localStorage.setItem('ww_schedule', JSON.stringify(schedule));
+    return;
+  }
+  try {
+    await db.collection('schedule').doc(dateStr).set(schedule[dateStr]);
+  } catch (e) {
+    console.error('Save schedule error:', e);
+    showToast('Save Error', 'Could not save to database.', true);
+  }
 }
 
+async function saveMeeting(meetingObj) {
+  if (!db) {
+    meetings.push(meetingObj);
+    localStorage.setItem('ww_meetings', JSON.stringify(meetings));
+    return;
+  }
+  try {
+    await db.collection('meetings').add(meetingObj);
+  } catch (e) {
+    console.error('Save meeting error:', e);
+    showToast('Save Error', 'Could not save meeting to database.', true);
+  }
+}
+
+async function deleteMeeting(firestoreId) {
+  if (!db) return;
+  try {
+    await db.collection('meetings').doc(firestoreId).delete();
+  } catch (e) {
+    console.error('Delete meeting error:', e);
+    showToast('Delete Error', 'Could not remove meeting from database.', true);
+  }
+}
+
+// ── DATE HELPERS ─────────────────────────────────────────────
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function isDatePast(d) { return d < todayStr(); }
+function isToday(d) { return d === todayStr(); }
 function isSlotPast(dateStr, time24) {
-  const now = new Date();
-  const [h, m] = time24.split(':').map(Number);
-  const slotDate = new Date(dateStr + 'T' + time24 + ':00');
-  return slotDate <= now;
+  return new Date(dateStr + 'T' + time24 + ':00') <= new Date();
 }
 
-// ── WEEK UTILS ────────────────────────────────────────────────
+// ── WEEK UTILS ───────────────────────────────────────────────
 function getWeekDates(offset = 0) {
   const now = new Date();
-  const day = now.getDay(); // 0=Sun
-  const diff = day === 0 ? -6 : 1 - day; // Monday of current week
+  const day = now.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
   const monday = new Date(now);
   monday.setDate(now.getDate() + diff + offset * 7);
   monday.setHours(0, 0, 0, 0);
   return DAYS.map((name, i) => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
-    return {
-      name,
-      date: d.toISOString().split('T')[0],
-      display: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-    };
+    return { name, date: d.toISOString().split('T')[0], display: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) };
   });
 }
 
-function changeWeek(dir) {
-  currentWeekOffset += dir;
-  renderSlots();
-}
+function changeWeek(dir) { currentWeekOffset += dir; renderSlots(); }
 
-// ── ENSURE DEFAULT SLOTS ──────────────────────────────────────
 function ensureDefaultSlots(dateStr) {
-  if (!schedule[dateStr]) {
-    schedule[dateStr] = {};
-  }
-  // Always ensure ALL fixed time slots exist for this date
-  TIME_SLOTS.forEach(time => {
-    if (!schedule[dateStr][time]) {
-      schedule[dateStr][time] = 'free';
-    }
-  });
+  if (!schedule[dateStr]) schedule[dateStr] = {};
+  TIME_SLOTS.forEach(t => { if (!schedule[dateStr][t]) schedule[dateStr][t] = 'free'; });
 }
 
-// ── TIME FORMATTING ───────────────────────────────────────────
-function formatTime12(time24) {
-  const [hours, mins] = time24.split(':');
-  const h = parseInt(hours);
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const h12 = h % 12 === 0 ? 12 : h % 12;
-  return `${h12}:${mins} ${ampm}`;
+// ── TIME HELPERS ─────────────────────────────────────────────
+function formatTime12(t) {
+  const [H, M] = t.split(':');
+  const h = parseInt(H);
+  return `${h % 12 === 0 ? 12 : h % 12}:${M} ${h >= 12 ? 'PM' : 'AM'}`;
 }
 
-function getNextSlotTime(time24) {
-  const idx = TIME_SLOTS.indexOf(time24);
-  if (idx === -1 || idx >= TIME_SLOTS.length - 1) {
-    // Fallback: add 30 mins manually
-    const [h, m] = time24.split(':').map(Number);
-    const totalMins = h * 60 + m + 30;
-    return `${String(Math.floor(totalMins / 60)).padStart(2, '0')}:${String(totalMins % 60).padStart(2, '0')}`;
-  }
-  return TIME_SLOTS[idx + 1];
+function getNextSlotTime(t) {
+  const idx = TIME_SLOTS.indexOf(t);
+  if (idx !== -1 && idx < TIME_SLOTS.length - 1) return TIME_SLOTS[idx + 1];
+  const [h, m] = t.split(':').map(Number);
+  const total = h * 60 + m + 30;
+  return `${String(Math.floor(total / 60)).padStart(2,'0')}:${String(total % 60).padStart(2,'0')}`;
 }
 
-// ── RENDER SLOTS ──────────────────────────────────────────────
+// ── RENDER SLOTS ─────────────────────────────────────────────
 function renderSlots() {
   const weekDates = getWeekDates(currentWeekOffset);
-  document.getElementById('weekLabel').textContent =
-    `${weekDates[0].display} – ${weekDates[5].display}`;
-
+  document.getElementById('weekLabel').textContent = `${weekDates[0].display} – ${weekDates[5].display}`;
   const grid = document.getElementById('slotsGrid');
   grid.innerHTML = '';
-
   const addDay = document.getElementById('addDay');
-  addDay.innerHTML = weekDates.map(d =>
-    `<option value="${d.date}">${d.name} ${d.display}</option>`
-  ).join('');
+  addDay.innerHTML = weekDates.map(d => `<option value="${d.date}">${d.name} ${d.display}</option>`).join('');
 
   weekDates.forEach(({ name, date, display }) => {
     ensureDefaultSlots(date);
-    saveData(); // persist defaults
-
     const dayPast = isDatePast(date);
     const dayToday = isToday(date);
 
@@ -796,27 +648,24 @@ function renderSlots() {
     labelDiv.className = 'day-label' + (dayPast ? ' past-day-label' : '');
     labelDiv.innerHTML = `${name}<span class="day-date">${display}</span>` +
       (dayPast ? `<span class="past-badge">Past</span>` : '') +
-      (dayToday && !dayPast ? `<span class="past-badge" style="color:var(--scheduled);background:var(--scheduled-bg);border-color:rgba(26,74,138,0.2);">Today</span>` : '');
+      (dayToday ? `<span class="past-badge" style="color:var(--scheduled);background:var(--scheduled-bg);border-color:rgba(26,74,138,0.2);">Today</span>` : '');
 
     const slotsDiv = document.createElement('div');
     slotsDiv.className = 'time-slots';
 
-    // Always render ALL fixed TIME_SLOTS for this day (sorted by fixed order)
     TIME_SLOTS.forEach(time => {
-      const rawStatus = schedule[date][time] || 'free';
-      const slotExpired = isSlotPast(date, time);
-
+      const rawStatus = (schedule[date] && schedule[date][time]) || 'free';
+      const expired = isSlotPast(date, time);
       const slot = document.createElement('div');
 
-      if (slotExpired && rawStatus !== 'scheduled') {
-        // Past and not a real meeting → show as past/red
+      if (expired && rawStatus !== 'scheduled') {
         slot.className = 'slot past-slot';
         slot.textContent = formatTime12(time);
         slot.title = 'This time has passed';
       } else if (rawStatus === 'scheduled') {
         slot.className = 'slot scheduled';
         const mtg = meetings.find(m => m.date === date && m.time === time);
-        slot.textContent = `${formatTime12(time)} — ${mtg ? mtg.name.split(' ')[0] : 'Meeting'}`;
+        slot.textContent = `${formatTime12(time)} — ${mtg ? mtg.name.split(' ')[0] : 'Booked'}`;
         slot.title = mtg ? `Meeting with ${mtg.name}` : '';
         if (isCEO) {
           slot.classList.add('ceo-editable');
@@ -826,30 +675,28 @@ function renderSlots() {
       } else if (rawStatus === 'busy') {
         slot.className = 'slot busy';
         slot.textContent = formatTime12(time);
-        if (isCEO && !slotExpired) {
+        if (isCEO && !expired) {
           slot.classList.add('ceo-editable');
           slot.style.cursor = 'pointer';
           slot.title = 'Click to mark free';
           slot.onclick = () => toggleSlot(date, time);
         }
       } else {
-        // free
         slot.className = 'slot free';
         slot.textContent = formatTime12(time);
-        if (!isCEO && !slotExpired) {
+        if (!isCEO && !expired) {
           slot.classList.add('ceo-editable');
           slot.style.cursor = 'pointer';
-          slot.title = 'Click to book this slot';
+          slot.title = 'Click to book';
           slot.onclick = () => handleSlotSelection(date, time);
         }
-        if (isCEO && !slotExpired) {
+        if (isCEO && !expired) {
           slot.classList.add('ceo-editable');
           slot.style.cursor = 'pointer';
           slot.title = 'Click to mark busy';
           slot.onclick = () => toggleSlot(date, time);
         }
       }
-
       slotsDiv.appendChild(slot);
     });
 
@@ -859,44 +706,39 @@ function renderSlots() {
   });
 }
 
-function toggleSlot(date, time) {
+async function toggleSlot(date, time) {
+  if (!schedule[date]) schedule[date] = {};
   if (schedule[date][time] === 'scheduled') return;
   schedule[date][time] = schedule[date][time] === 'free' ? 'busy' : 'free';
-  saveData();
-  renderSlots();
-  document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString('en-IN', { hour12: true });
+  renderSlots(); // optimistic UI
+  await saveScheduleDay(date);
 }
 
-function addSlot() {
+async function addSlot() {
   const date = document.getElementById('addDay').value;
   const time = document.getElementById('addTime').value;
   const status = document.getElementById('addStatus').value;
   if (!date || !time) return;
   if (!schedule[date]) schedule[date] = {};
   schedule[date][time] = status;
-  saveData();
   renderSlots();
-  showToast('Slot Added', `${formatTime12(time)} on ${date} marked as ${status}.`);
+  await saveScheduleDay(date);
+  showToast('Slot Added', `${formatTime12(time)} marked as ${status}.`);
 }
 
-// ── BOOKING FORM ──────────────────────────────────────────────
+// ── BOOKING FORM ─────────────────────────────────────────────
 function openBookingForm(date, time) {
   _selectedDate = date;
   _selectedTimes = [time];
   updateBookingDisplay();
-
   const d = new Date(date + 'T00:00:00');
-  const dayName = d.toLocaleDateString('en-GB', { weekday: 'long' });
-  const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-
-  document.getElementById('bookingTitle').textContent = `Meeting on ${dayName}, ${dateStr}`;
+  document.getElementById('bookingTitle').textContent =
+    `Meeting on ${d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}`;
   document.getElementById('visitorName').value = '';
-
   document.getElementById('quickBookContainer').classList.add('active');
   document.getElementById('noBookingMsg').style.display = 'none';
-
   setTimeout(() => {
-    document.querySelector('.quick-book-panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.querySelector('.quick-book-panel').scrollIntoView({ behavior:'smooth', block:'center' });
     setTimeout(() => document.getElementById('visitorName').focus(), 600);
   }, 100);
 }
@@ -908,135 +750,98 @@ function updateBookingDisplay() {
     btn.style.display = 'none';
   } else if (_selectedTimes.length === 1) {
     document.getElementById('selectedSlotDisplay').textContent = `${formatTime12(_selectedTimes[0])} (30 mins)`;
-    const nextSlotTime = getNextSlotTime(_selectedTimes[0]);
-    const nextSlotStatus = schedule[_selectedDate] ? schedule[_selectedDate][nextSlotTime] : null;
-    if (nextSlotStatus === 'free' && !isSlotPast(_selectedDate, nextSlotTime)) {
-      btn.style.display = 'block';
-      btn.disabled = false;
-    } else {
-      btn.style.display = 'none';
-    }
+    const next = getNextSlotTime(_selectedTimes[0]);
+    const nextStatus = schedule[_selectedDate] && schedule[_selectedDate][next];
+    btn.style.display = (nextStatus === 'free' && !isSlotPast(_selectedDate, next)) ? 'block' : 'none';
+    btn.disabled = false;
   } else {
-    const endTime = getNextSlotTime(_selectedTimes[1]);
     document.getElementById('selectedSlotDisplay').textContent =
-      `${formatTime12(_selectedTimes[0])} - ${formatTime12(endTime)} (1 hour)`;
+      `${formatTime12(_selectedTimes[0])} - ${formatTime12(getNextSlotTime(_selectedTimes[1]))} (1 hour)`;
     btn.style.display = 'none';
   }
 }
 
 function handleSlotSelection(date, time) {
   if (_selectedTimes.length === 0 || _selectedDate !== date) {
-    _selectedDate = date;
-    _selectedTimes = [time];
-    openBookingForm(date, time);
+    _selectedDate = date; _selectedTimes = [time]; openBookingForm(date, time);
   } else if (_selectedTimes.length === 1) {
-    const nextSlotTime = getNextSlotTime(_selectedTimes[0]);
-    if (time === nextSlotTime) {
-      _selectedTimes.push(time);
-      updateBookingDisplay();
-      showToast('Slot Added', 'You now have a 1-hour booking (2 × 30-min slots)');
-    } else if (time === _selectedTimes[0]) {
-      _selectedTimes = [];
-      cancelBooking();
-      showToast('Selection Cleared', 'Your slot selection has been cleared');
-    } else {
-      _selectedTimes = [time];
-      updateBookingDisplay();
-      showToast('Slot Changed', 'Selection changed to this new time slot');
-    }
-  } else {
-    _selectedTimes = [time];
-    updateBookingDisplay();
-    showToast('Slot Changed', 'Selection reset to this new time slot');
-  }
+    const next = getNextSlotTime(_selectedTimes[0]);
+    if (time === next) { _selectedTimes.push(time); updateBookingDisplay(); showToast('Extended', '1-hour slot selected'); }
+    else if (time === _selectedTimes[0]) { cancelBooking(); }
+    else { _selectedTimes = [time]; updateBookingDisplay(); showToast('Changed', 'Selection updated'); }
+  } else { _selectedTimes = [time]; updateBookingDisplay(); showToast('Changed', 'Selection reset to this slot'); }
 }
 
 function addSecondSlot() {
-  if (_selectedTimes.length !== 1) return;
-  const nextSlotTime = getNextSlotTime(_selectedTimes[0]);
-  const nextSlotStatus = schedule[_selectedDate] ? schedule[_selectedDate][nextSlotTime] : null;
-  if (!nextSlotStatus || nextSlotStatus !== 'free' || isSlotPast(_selectedDate, nextSlotTime)) {
-    showToast('Slot Unavailable', 'The next 30-minute slot is not available', true);
-    return;
+  const next = getNextSlotTime(_selectedTimes[0]);
+  if (!schedule[_selectedDate][next] || schedule[_selectedDate][next] !== 'free' || isSlotPast(_selectedDate, next)) {
+    showToast('Unavailable', 'Next slot is not free', true); return;
   }
-  _selectedTimes.push(nextSlotTime);
-  updateBookingDisplay();
-  showToast('Slot Added', 'You now have a 1-hour booking (2 × 30-min slots)');
+  _selectedTimes.push(next); updateBookingDisplay();
+  showToast('Extended', '1-hour booking selected');
 }
 
 function cancelBooking() {
   document.getElementById('quickBookContainer').classList.remove('active');
   document.getElementById('noBookingMsg').style.display = 'block';
-  _selectedDate = null;
-  _selectedTimes = [];
+  _selectedDate = null; _selectedTimes = [];
 }
 
-function confirmBooking() {
+async function confirmBooking() {
   const name = document.getElementById('visitorName').value.trim();
-  if (!name) { showToast('Required Field', 'Please enter your name.', true); return; }
-  if (_selectedTimes.length === 0) { showToast('No Slot Selected', 'Please select at least one time slot.', true); return; }
+  if (!name) { showToast('Required', 'Please enter your name.', true); return; }
+  if (!_selectedTimes.length) { showToast('No Slot', 'Please select a time slot.', true); return; }
 
   const startTime = _selectedTimes[0];
   const endTime = _selectedTimes.length === 2 ? getNextSlotTime(_selectedTimes[1]) : getNextSlotTime(startTime);
   const duration = _selectedTimes.length === 1 ? '30 mins' : '1 hour';
+  const bookingGroupId = 'grp_' + Date.now();
 
-  _selectedTimes.forEach(time => {
-    meetings.push({
-      id: Date.now() + Math.random(),
-      name,
-      date: _selectedDate,
-      time,
-      startTime,
-      endTime,
-      duration,
-      type: 'In-Person',
-      bookedAt: new Date().toISOString()
-    });
-    schedule[_selectedDate][time] = 'scheduled';
-  });
-
-  saveData();
+  // Mark slots in local state immediately (optimistic)
+  _selectedTimes.forEach(t => { schedule[_selectedDate][t] = 'scheduled'; });
   renderSlots();
-  renderMeetings();
-  cancelBooking();
 
-  const dateObj = new Date(_selectedDate + 'T00:00:00');
-  const dateStr = dateObj.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long' });
-  showToast('✓ Booking Confirmed', `Your ${duration} meeting on ${dateStr} from ${formatTime12(startTime)} is confirmed!`);
-  document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString('en-IN', { hour12: true });
+  // Save each slot to Firestore
+  for (const time of _selectedTimes) {
+    const mtg = { groupId: bookingGroupId, name, date: _selectedDate, time, startTime, endTime, duration, type: 'In-Person', bookedAt: new Date().toISOString() };
+    await saveMeeting(mtg);
+  }
+  await saveScheduleDay(_selectedDate);
+
+  const dateStr = new Date(_selectedDate + 'T00:00:00').toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'long' });
+  showToast('✓ Confirmed', `Your ${duration} meeting on ${dateStr} at ${formatTime12(startTime)} is booked!`);
+  cancelBooking();
 }
 
-// ── RENDER MEETINGS ───────────────────────────────────────────
+// ── RENDER MEETINGS ──────────────────────────────────────────
 function renderMeetings() {
   const list = document.getElementById('meetingList');
-  if (meetings.length === 0) {
+  if (!meetings.length) {
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No meetings scheduled yet</p></div>`;
     return;
   }
-  const seenIds = new Set();
+  // Deduplicate by groupId (show each booking once)
+  const seenGroups = new Set();
   const cards = [];
-  meetings.forEach(m => {
-    if (seenIds.has(m.id)) return;
-    seenIds.add(m.id);
-    const dateObj = new Date(m.date + 'T00:00:00');
-    const dateStr = dateObj.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
-    const timeDisplay = m.duration === '1 hour'
-      ? `${formatTime12(m.startTime)} - ${formatTime12(m.endTime)}`
-      : formatTime12(m.time);
+  [...meetings].sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)).forEach(m => {
+    const gid = m.groupId || m.firestoreId;
+    if (seenGroups.has(gid)) return;
+    seenGroups.add(gid);
+    const dateStr = new Date(m.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'long', year:'numeric' });
+    const timeDisplay = m.duration === '1 hour' ? `${formatTime12(m.startTime)} - ${formatTime12(m.endTime)}` : formatTime12(m.time);
     cards.push(`
       <div class="meeting-card">
         <div class="mc-name">${escHtml(m.name)}</div>
         <div class="mc-org">Visitor</div>
         <div class="mc-datetime">📅 ${dateStr} · ${timeDisplay} · ${m.duration}</div>
         <span class="mc-badge">✓ Confirmed</span>
-        <button class="mc-cancel-btn" onclick="openCancelModalByData('${m.date}', '${m.time}')">✗ Cancel Appointment</button>
-      </div>
-    `);
+        <button class="mc-cancel-btn" onclick="openCancelModalByData('${m.date}','${m.startTime || m.time}')">✗ Cancel</button>
+      </div>`);
   });
   list.innerHTML = cards.join('');
 }
 
-// ── CEO AUTH ──────────────────────────────────────────────────
+// ── CEO AUTH ─────────────────────────────────────────────────
 function toggleLogin() {
   const pw = document.getElementById('pwRow');
   pw.classList.toggle('visible');
@@ -1046,133 +851,83 @@ function toggleLogin() {
 async function ceoLogin() {
   const btn = document.getElementById('ceoLoginBtn');
   const input = document.getElementById('ceoPassword');
-  btn.textContent = 'Verifying…';
-  btn.disabled = true;
-
-  await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
-
-  // Hardcoded CEO password check
-  const ok = input.value === CEO_PASSWORD;
-  btn.textContent = 'Access';
-  btn.disabled = false;
-
-  if (ok) {
+  btn.textContent = 'Verifying…'; btn.disabled = true;
+  await new Promise(r => setTimeout(r, 700));
+  btn.textContent = 'Access'; btn.disabled = false;
+  if (input.value === CEO_PASSWORD) {
     isCEO = true;
     document.body.classList.add('ceo-active');
     document.getElementById('pwRow').classList.remove('visible');
     document.getElementById('ceoHint').style.display = 'none';
     document.getElementById('ceoLoggedIn').style.display = 'block';
     input.value = '';
-    renderSlots();
-    renderMeetings();
-    showToast('CEO Portal Active', 'You can now toggle slot availability and cancel meetings.');
+    renderSlots(); renderMeetings();
+    showToast('CEO Portal Active', 'You can now manage slots and cancel meetings.');
   } else {
-    showToast('Access Denied', 'Incorrect access key. Please try again.', true);
-    input.value = '';
-    input.focus();
+    showToast('Access Denied', 'Incorrect access key.', true);
+    input.value = ''; input.focus();
   }
 }
-
-document.getElementById('ceoPassword').addEventListener('keydown', e => {
-  if (e.key === 'Enter') ceoLogin();
-});
+document.getElementById('ceoPassword').addEventListener('keydown', e => { if (e.key === 'Enter') ceoLogin(); });
 
 function ceoLogout() {
   isCEO = false;
   document.body.classList.remove('ceo-active');
   document.getElementById('ceoLoggedIn').style.display = 'none';
   document.getElementById('ceoHint').style.display = 'block';
-  renderSlots();
-  renderMeetings();
+  renderSlots(); renderMeetings();
 }
 
-// ── CANCEL MEETING (CEO only) ─────────────────────────────────
-function openCancelModalByData(date, time) {
-  const found = meetings.filter(m => m.date === date && (m.time === time || m.startTime === time));
+// ── CANCEL MEETING ───────────────────────────────────────────
+function openCancelModalByData(date, startTime) {
+  const found = meetings.filter(m => m.date === date && (m.startTime === startTime || m.time === startTime));
   if (!found.length) return;
   const m = found[0];
-  const dateObj = new Date(m.date + 'T00:00:00');
-  const dateStr = dateObj.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long' });
-  const timeDisplay = m.duration === '1 hour'
-    ? `${formatTime12(m.startTime)} - ${formatTime12(m.endTime)}`
-    : formatTime12(m.time);
-  document.getElementById('cancelModalText').textContent =
-    `Cancel meeting with ${m.name} on ${dateStr} at ${timeDisplay}?`;
-  document.getElementById('confirmCancelBtn').onclick = () => cancelMeetingByData(date, time);
+  const dateStr = new Date(m.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'long' });
+  const timeDisplay = m.duration === '1 hour' ? `${formatTime12(m.startTime)} - ${formatTime12(m.endTime)}` : formatTime12(m.time);
+  document.getElementById('cancelModalText').textContent = `Cancel meeting with ${m.name} on ${dateStr} at ${timeDisplay}?`;
+  document.getElementById('confirmCancelBtn').onclick = () => cancelMeetingByData(date, startTime);
   document.getElementById('cancelModal').classList.add('active');
 }
 
-function cancelMeetingByData(date, time) {
-  const toRemove = [];
-  meetings.forEach((m, i) => {
-    if (m.date === date && (m.time === time || m.startTime === time)) {
-      toRemove.push(i);
-      if (schedule[m.date] && schedule[m.date][m.time] === 'scheduled') {
-        schedule[m.date][m.time] = 'free';
-      }
-    }
-  });
-  toRemove.reverse().forEach(i => meetings.splice(i, 1));
-  saveData();
+async function cancelMeetingByData(date, startTime) {
+  const toDelete = meetings.filter(m => m.date === date && (m.startTime === startTime || m.time === startTime));
+  // Free up schedule slots
+  toDelete.forEach(m => { if (schedule[m.date]) schedule[m.date][m.time] = 'free'; });
+  renderSlots(); // optimistic
+  // Delete from Firestore
+  for (const m of toDelete) {
+    if (m.firestoreId) await deleteMeeting(m.firestoreId);
+  }
+  await saveScheduleDay(date);
   closeModal('cancelModal');
-  renderSlots();
-  renderMeetings();
-  const dateObj = new Date(date + 'T00:00:00');
-  const dateStr = dateObj.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long' });
-  showToast('Meeting Cancelled', `Meeting on ${dateStr} has been cancelled.`);
-  document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString('en-IN', { hour12: true });
+  const dateStr = new Date(date + 'T00:00:00').toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'long' });
+  showToast('Cancelled', `Meeting on ${dateStr} has been cancelled.`);
 }
 
-// ── MODAL HELPERS ─────────────────────────────────────────────
-function closeModal(id) {
-  document.getElementById(id).classList.remove('active');
-}
-document.getElementById('cancelModal').addEventListener('click', e => {
-  if (e.target === document.getElementById('cancelModal')) closeModal('cancelModal');
-});
+// ── MODAL ────────────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+document.getElementById('cancelModal').addEventListener('click', e => { if (e.target === document.getElementById('cancelModal')) closeModal('cancelModal'); });
 
-// ── TOAST ─────────────────────────────────────────────────────
+// ── TOAST ────────────────────────────────────────────────────
 let _toastTimer;
 function showToast(title, msg, isError = false) {
-  const toast = document.getElementById('toast');
+  const t = document.getElementById('toast');
   document.getElementById('toastTitle').textContent = title;
   document.getElementById('toastMsg').textContent = msg;
-  toast.classList.toggle('error-toast', isError);
-  toast.classList.add('show');
+  t.classList.toggle('error-toast', isError);
+  t.classList.add('show');
   clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => toast.classList.remove('show'), 5500);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 5500);
 }
 
-// ── UTILS ─────────────────────────────────────────────────────
-function escHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── INIT ──────────────────────────────────────────────────────
-document.getElementById('lastUpdated').textContent =
-  new Date().toLocaleTimeString('en-IN', { hour12: true });
-
-// Initialize default slots for the current week on first visit
-if (!localStorage.getItem('ww_initialized')) {
-  const weekDates = getWeekDates(0);
-  weekDates.forEach(({ date }) => {
-    ensureDefaultSlots(date);
-  });
-  // Demo busy slots on today
-  const today = todayStr();
-  if (schedule[today]) {
-    schedule[today]['11:00'] = 'busy';
-    schedule[today]['14:00'] = 'busy';
-  }
-  saveData();
-  localStorage.setItem('ww_initialized', 'true');
-}
-
+// ── START ────────────────────────────────────────────────────
 renderSlots();
-renderMeetings();
+initFirebase();
 </script>
 </body>
 </html>
