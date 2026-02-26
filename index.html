@@ -461,7 +461,7 @@ function getWeekDates(offset = 0) {
   });
 }
 
-function changeWeek(dir) { currentWeekOffset += dir; renderSlots(); }
+function changeWeek(dir) { currentWeekOffset = Math.max(0, currentWeekOffset + dir); renderSlots(); }
 
 function ensureDefaultSlots(dateStr) {
   if (!schedule[dateStr]) schedule[dateStr] = {};
@@ -482,22 +482,34 @@ function getNextSlotTime(t) {
 
 function renderSlots() {
   const weekDates = getWeekDates(currentWeekOffset);
-  document.getElementById('weekLabel').textContent = `${weekDates[0].display} – ${weekDates[5].display}`;
+  // weekLabel is set below after computing pageDays
   const grid = document.getElementById('slotsGrid');
   grid.innerHTML = '';
   document.getElementById('addDay').innerHTML = weekDates.map(d => `<option value="${d.date}">${d.name} ${d.display}</option>`).join('');
 
-  let shownCount = 0;
-  weekDates.forEach(({ name, date, display }) => {
-    ensureDefaultSlots(date);
+  // Build list of all non-past days across ALL weeks (current week + future weeks)
+  // We show 2 days at a time using currentWeekOffset as a 2-day page index
+  // Get all upcoming days from this week and next few weeks
+  const allUpcomingDays = [];
+  for (let w = 0; w <= 4; w++) {
+    getWeekDates(w).forEach(d => {
+      if (!isDatePast(d.date)) allUpcomingDays.push(d);
+    });
+  }
+  // currentWeekOffset used as page: each page = 2 days
+  const pageStart = currentWeekOffset * 2;
+  const pageDays = allUpcomingDays.slice(pageStart, pageStart + 2);
 
-    // Skip past days — only show today and future days
-    if (isDatePast(date)) return;
-    // Only show up to 2 upcoming days per view
-    if (shownCount >= 2) return;
-    shownCount++;
-    // ──────────────────────────────────────────────────────
+  // Update week label to show the 2 days being shown
+  if (pageDays.length > 0) {
+    const last = pageDays[pageDays.length - 1];
+    document.getElementById('weekLabel').textContent = pageDays[0].display + (pageDays.length > 1 ? ' – ' + last.display : '');
+  }
 
+  // Ensure default slots for visible days
+  pageDays.forEach(d => ensureDefaultSlots(d.date));
+
+  pageDays.forEach(({ name, date, display }) => {
     const dayToday = isToday(date);
     const row = document.createElement('div');
     row.className = 'day-row';
