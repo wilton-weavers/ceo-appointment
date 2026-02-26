@@ -487,11 +487,15 @@ function renderSlots() {
   grid.innerHTML = '';
   document.getElementById('addDay').innerHTML = weekDates.map(d => `<option value="${d.date}">${d.name} ${d.display}</option>`).join('');
 
+  let shownCount = 0;
   weekDates.forEach(({ name, date, display }) => {
     ensureDefaultSlots(date);
 
-    // ── Skip past days — only show today and future days ──
+    // Skip past days — only show today and future days
     if (isDatePast(date)) return;
+    // Only show up to 2 upcoming days per view
+    if (shownCount >= 2) return;
+    shownCount++;
     // ──────────────────────────────────────────────────────
 
     const dayToday = isToday(date);
