@@ -267,7 +267,7 @@
 
 <!-- Config Banner (shows if firebase-config.js is missing) -->
 <div id="configBanner">
-  ⚠️ <strong>Firebase not configured.</strong>
+  <strong>Firebase not configured.</strong>
   Create a <code>firebase-config.js</code> file (see HTML comments for instructions) and add it to <code>.gitignore</code>.
   Until then, bookings only save locally on your device.
 </div>
@@ -545,7 +545,7 @@ async function checkExpiredMeetings() {
 function setConnStatus(online) {
   document.getElementById('connIndicator').className = 'status-indicator ' + (online ? 'online' : 'offline');
   document.getElementById('connStatus').textContent = online
-    ? '🟢 Live — changes sync to all users instantly'
+    ? 'Live 
     : 'Offline — not syncing to other users';
 }
 
