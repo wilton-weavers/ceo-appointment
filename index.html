@@ -7,28 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-<!--
-  ════════════════════════════════════════════════════════════
-  🔐 GITHUB SAFE — Firebase credentials are NOT stored here.
-  ════════════════════════════════════════════════════════════
-  To configure Firebase, create a file named:
-    firebase-config.js
-  in the SAME folder as this HTML file, with this content:
-
-    window.FIREBASE_CONFIG = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT.firebasestorage.app",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-  Then add firebase-config.js to your .gitignore so it's
-  never committed to GitHub.
-  ════════════════════════════════════════════════════════════
--->
-
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -50,6 +28,8 @@
     --scheduled-bg: #e8eef8;
     --past: #c0392b;
     --past-bg: #fdf0ef;
+    --ongoing: #1a6b3a;
+    --ongoing-bg: #d4f5e2;
   }
 
   body {
@@ -71,29 +51,25 @@
     z-index: 0;
   }
 
-  /* ── LOADING OVERLAY ── */
   #loadingOverlay {
     position: fixed; inset: 0;
     background: var(--navy);
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     z-index: 9999;
-    transition: opacity 0.6s ease;
+    transition: opacity 0.5s;
   }
   #loadingOverlay.hidden { opacity: 0; pointer-events: none; }
-  .loading-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--gold-light); font-style: italic; margin-bottom: 1rem; opacity: 0; animation: fadeUp 0.6s ease 0.1s forwards; }
-  .loading-bar { width: 200px; height: 2px; background: rgba(201,169,110,0.2); border-radius: 2px; overflow: hidden; opacity: 0; animation: fadeUp 0.6s ease 0.3s forwards; }
+  .loading-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--gold-light); font-style: italic; margin-bottom: 1rem; }
+  .loading-bar { width: 200px; height: 2px; background: rgba(201,169,110,0.2); border-radius: 2px; overflow: hidden; }
   .loading-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); animation: loadAnim 1.5s ease-in-out infinite; }
   @keyframes loadAnim { 0% { width: 0%; margin-left: 0; } 50% { width: 60%; margin-left: 20%; } 100% { width: 0%; margin-left: 100%; } }
-  .loading-text { margin-top: 1rem; font-size: 0.75rem; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; opacity: 0; animation: fadeUp 0.6s ease 0.5s forwards; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .loading-text { margin-top: 1rem; font-size: 0.75rem; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; }
 
-  /* ── CONFIG BANNER ── */
   #configBanner { background: #7c2d12; color: #fde8d8; padding: 1rem 2rem; text-align: center; font-size: 0.85rem; line-height: 1.6; display: none; position: relative; z-index: 10; }
   #configBanner strong { color: #fbbf24; }
   #configBanner code { background: rgba(0,0,0,0.3); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.8rem; }
 
-  /* ── HEADER ── */
   header { background: var(--navy); position: relative; overflow: hidden; padding: 0; }
   header::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent); }
   .header-inner { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
@@ -105,14 +81,11 @@
   .header-ceo h2 { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--warm-white); font-weight: 400; }
   .header-ceo p { font-size: 0.78rem; color: var(--gold-light); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; }
 
-  /* ── HERO STRIP ── */
   .hero-strip { background: var(--navy-mid); padding: 1.2rem 2rem; text-align: center; border-bottom: 1px solid rgba(201,169,110,0.2); }
   .hero-strip p { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: var(--gold-pale); letter-spacing: 0.08em; font-style: italic; }
 
-  /* ── MAIN LAYOUT ── */
   .main-grid { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; position: relative; z-index: 1; }
 
-  /* ── PANELS ── */
   .panel { background: var(--warm-white); border: 1px solid rgba(201,169,110,0.25); border-radius: 4px; overflow: hidden; box-shadow: 0 4px 24px rgba(15,28,46,0.07); transition: box-shadow 0.3s; }
   .panel:hover { box-shadow: 0 8px 40px rgba(15,28,46,0.12); }
   .panel-header { background: var(--navy); padding: 1.4rem 1.8rem; display: flex; align-items: center; gap: 0.8rem; }
@@ -121,26 +94,25 @@
   .panel-header p { font-size: 0.73rem; color: var(--gold-light); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 1px; }
   .panel-body { padding: 1.8rem; }
 
-  /* ── AVAILABILITY ── */
   .availability-panel { grid-column: 1; }
   .week-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
   .week-nav-label { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--navy); font-style: italic; }
   .week-btn { background: none; border: 1px solid rgba(201,169,110,0.4); color: var(--gold); width: 30px; height: 30px; border-radius: 2px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
   .week-btn:hover { background: var(--navy); border-color: var(--navy); color: var(--gold-light); }
-  .week-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-  .slots-grid { display: flex; flex-direction: column; gap: 0.7rem; min-height: 60px; transition: opacity 0.2s; }
-  .slots-grid.loading { opacity: 0.5; pointer-events: none; }
+  .slots-grid { display: flex; flex-direction: column; gap: 0.7rem; }
   .day-row { display: grid; grid-template-columns: 100px 1fr; align-items: start; gap: 0.8rem; }
   .day-label { font-size: 0.78rem; font-weight: 500; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; padding-top: 0.2rem; }
   .day-date { font-family: 'Playfair Display', serif; font-size: 0.75rem; color: var(--gold); display: block; }
   .today-badge { display: inline-block; font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--scheduled); background: var(--scheduled-bg); border: 1px solid rgba(26,74,138,0.2); border-radius: 2px; padding: 0.1rem 0.35rem; margin-top: 0.2rem; }
   .time-slots { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-  .slot { padding: 0.3rem 0.7rem; border-radius: 2px; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.04em; border: 1px solid transparent; transition: all 0.2s; white-space: nowrap; cursor: default; }
-  .slot.free { background: var(--free-bg); color: var(--free); border-color: rgba(45,122,95,0.2); cursor: pointer; }
+  .slot { padding: 0.3rem 0.7rem; border-radius: 2px; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.04em; border: 1px solid transparent; transition: all 0.2s; white-space: nowrap; cursor: default; position: relative; overflow: hidden; }
+  .slot.free { background: var(--free-bg); color: var(--free); border-color: rgba(45,122,95,0.2); }
   .slot.free:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(45,122,95,0.15); }
   .slot.busy { background: var(--busy-bg); color: var(--busy); border-color: rgba(139,58,58,0.2); text-decoration: line-through; opacity: 0.8; }
   .slot.scheduled { background: var(--scheduled-bg); color: var(--scheduled); border-color: rgba(26,74,138,0.2); font-style: italic; }
-  .slot.past-slot { background: var(--past-bg) !important; color: var(--past) !important; border-color: rgba(192,57,43,0.2) !important; opacity: 0.5 !important; text-decoration: line-through !important; cursor: not-allowed !important; pointer-events: none; }
+  .slot.ongoing { background: var(--ongoing-bg) !important; color: var(--ongoing) !important; border-color: rgba(26,107,58,0.35) !important; font-style: italic; font-weight: 600; animation: ongoingPulse 2s infinite; }
+  @keyframes ongoingPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(26,107,58,0.15); } 50% { box-shadow: 0 0 0 4px rgba(26,107,58,0.1); } }
+  .slot.past-slot { background: var(--past-bg) !important; color: var(--past) !important; border-color: rgba(192,57,43,0.2) !important; opacity: 0.55 !important; text-decoration: line-through !important; cursor: not-allowed !important; pointer-events: none; }
   .slot.ceo-editable { cursor: pointer; user-select: none; }
 
   .legend { display: flex; gap: 1rem; margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid rgba(201,169,110,0.15); flex-wrap: wrap; }
@@ -150,23 +122,21 @@
   .legend-dot.busy { background: var(--busy); }
   .legend-dot.scheduled { background: var(--scheduled); }
   .legend-dot.past { background: var(--past); }
+  .legend-dot.ongoing { background: var(--ongoing); }
 
-  /* ── MEETINGS ── */
   .meetings-panel { grid-column: 2; grid-row: 1 / 3; }
   .meeting-list { display: flex; flex-direction: column; gap: 1rem; }
-  .meeting-card {
-    border: 1px solid rgba(201,169,110,0.2); border-radius: 3px; padding: 1rem 1.2rem;
-    background: var(--cream); position: relative; overflow: hidden;
-    animation: slideIn 0.35s ease both;
-    transition: opacity 0.4s ease, transform 0.4s ease, max-height 0.4s ease;
-  }
+  .meeting-card { border: 1px solid rgba(201,169,110,0.2); border-radius: 3px; padding: 1rem 1.2rem; background: var(--cream); position: relative; overflow: hidden; animation: slideIn 0.4s ease; }
+  .meeting-card.ongoing-card { background: var(--ongoing-bg) !important; border-color: rgba(26,107,58,0.3) !important; }
+  .meeting-card.ongoing-card::before { background: linear-gradient(180deg, var(--ongoing), #2d9a5f) !important; }
   @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .meeting-card.fading-out { opacity: 0; transform: translateY(-6px); max-height: 0; padding: 0; margin: 0; border: none; }
   .meeting-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--gold), var(--gold-light)); }
   .meeting-card .mc-name { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--navy); font-weight: 600; margin-bottom: 0.2rem; }
   .meeting-card .mc-org { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem; }
   .meeting-card .mc-datetime { font-size: 0.78rem; color: var(--gold); font-weight: 500; letter-spacing: 0.03em; }
+  .meeting-card.ongoing-card .mc-datetime { color: var(--ongoing); }
   .meeting-card .mc-badge { display: inline-block; margin-top: 0.5rem; padding: 0.2rem 0.6rem; border-radius: 2px; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--scheduled-bg); color: var(--scheduled); }
+  .meeting-card .mc-badge.ongoing-badge { background: var(--ongoing-bg); color: var(--ongoing); border: 1px solid rgba(26,107,58,0.3); }
   .mc-cancel-btn { display: none; margin-top: 0.6rem; font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; background: transparent; color: var(--busy); border: 1px solid rgba(139,58,58,0.3); padding: 0.25rem 0.7rem; border-radius: 2px; cursor: pointer; transition: all 0.2s; }
   .mc-cancel-btn:hover { background: var(--busy); color: white; }
   body.ceo-active .mc-cancel-btn { display: inline-block; }
@@ -174,12 +144,11 @@
   .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 0.8rem; opacity: 0.4; }
   .empty-state p { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-style: italic; }
 
-  /* ── BOOKING FORM ── */
   .quick-book-panel { grid-column: 1 / 3; scroll-margin-top: 2rem; }
   .quick-book-container { background: var(--cream); border: 2px dashed rgba(201,169,110,0.3); border-radius: 3px; padding: 1.2rem; margin-bottom: 1.2rem; display: none; }
   @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes highlight-pulse { 0% { box-shadow: 0 0 0 0 rgba(201,169,110,0); } 50% { box-shadow: 0 0 0 8px rgba(201,169,110,0.1); } 100% { box-shadow: 0 0 0 0 rgba(201,169,110,0); } }
-  .quick-book-container.active { display: block; animation: slideInUp 0.4s ease, highlight-pulse 0.8s ease-out; }
+  @keyframes highlight-pulse { 0% { border-color: rgba(201,169,110,0.3); box-shadow: 0 0 0 0 rgba(201,169,110,0); } 50% { box-shadow: 0 0 0 8px rgba(201,169,110,0.1); } 100% { border-color: rgba(201,169,110,0.5); box-shadow: 0 0 0 0 rgba(201,169,110,0); } }
+  .quick-book-container.active { display: block; animation: slideInUp 0.5s ease, highlight-pulse 0.8s ease-out; }
   .quick-book-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--navy); font-weight: 600; margin-bottom: 0.8rem; }
   .quick-book-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
   .quick-book-grid input { font-family: 'DM Sans', sans-serif; font-size: 0.85rem; padding: 0.6rem 0.8rem; border: 1px solid rgba(201,169,110,0.3); border-radius: 2px; background: var(--warm-white); color: var(--text-dark); outline: none; transition: border-color 0.2s; }
@@ -194,40 +163,35 @@
   .add-second-slot-btn:hover { background: linear-gradient(135deg, rgba(201,169,110,0.3), rgba(201,169,110,0.2)); border-color: var(--gold); }
   .add-second-slot-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* ── CEO LOGIN ── */
   .ceo-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(201,169,110,0.15); }
   .ceo-hint { font-size: 0.73rem; color: rgba(201,169,110,0.6); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; text-align: center; padding: 0.5rem; transition: color 0.2s; }
   .ceo-hint:hover { color: var(--gold-light); }
   .pw-row { display: none; gap: 0.5rem; margin-top: 0.6rem; }
   .pw-row.visible { display: flex; }
-  .pw-row input { flex: 1; font-size: 0.83rem; padding: 0.55rem 0.8rem; border: 1px solid rgba(201,169,110,0.3); border-radius: 2px; background: var(--cream); outline: none; transition: border-color 0.2s; }
-  .pw-row input:focus { border-color: var(--gold); }
+  .pw-row input { flex: 1; font-size: 0.83rem; padding: 0.55rem 0.8rem; border: 1px solid rgba(201,169,110,0.3); border-radius: 2px; background: var(--cream); }
   .pw-row button { font-family: 'DM Sans', sans-serif; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; background: var(--navy); color: var(--gold-light); border: none; padding: 0.55rem 1rem; border-radius: 2px; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
   .pw-row button:hover { opacity: 0.85; }
 
-  /* ── CEO CONTROLS ── */
   .ceo-controls { display: none; }
   body.ceo-active .ceo-controls { display: block; }
-  .add-slot-row { margin-top: 0.8rem; gap: 0.5rem; flex-wrap: wrap; align-items: center; display: flex; }
+  .add-slot-row { display: none; margin-top: 0.8rem; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  .add-slot-row.visible { display: flex; }
   .add-slot-btn { font-size: 0.72rem; padding: 0.3rem 0.7rem; background: var(--navy); color: var(--gold-light); border: none; border-radius: 2px; cursor: pointer; transition: opacity 0.2s; }
   .add-slot-btn:hover { opacity: 0.8; }
   .add-slot-row select, .add-slot-row input[type="time"] { font-size: 0.78rem; padding: 0.3rem 0.5rem; width: auto; }
 
-  /* ── TOAST ── */
   .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--navy); color: var(--warm-white); border: 1px solid rgba(201,169,110,0.3); padding: 1rem 1.5rem; border-radius: 3px; font-size: 0.85rem; box-shadow: 0 8px 32px rgba(15,28,46,0.25); transform: translateY(120px); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 1000; max-width: 320px; border-left: 3px solid var(--gold); }
   .toast.show { transform: translateY(0); opacity: 1; }
   .toast strong { color: var(--gold-light); display: block; margin-bottom: 0.2rem; }
   .toast.error-toast { border-left-color: var(--busy); }
 
-  /* ── STATUS ROW ── */
   .status-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.8rem 1.2rem; background: var(--cream); border-radius: 2px; border: 1px solid rgba(201,169,110,0.15); margin-bottom: 1.2rem; }
-  .status-indicator { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .status-indicator.online { background: var(--free); animation: pulse 2.5s ease-in-out infinite; }
+  .status-indicator { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .status-indicator.online { background: var(--free); }
   .status-indicator.offline { background: var(--busy); }
-  @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(45,122,95,0.4); } 50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(45,122,95,0); } }
   .status-text { font-size: 0.8rem; color: var(--text-muted); }
 
-  /* ── MODAL ── */
   .modal-overlay { position: fixed; inset: 0; background: rgba(15,28,46,0.7); backdrop-filter: blur(4px); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
   .modal-overlay.active { opacity: 1; pointer-events: all; }
   .modal { background: var(--warm-white); border: 1px solid rgba(201,169,110,0.3); border-radius: 4px; padding: 2rem; max-width: 440px; width: 90%; box-shadow: 0 20px 60px rgba(15,28,46,0.3); transform: translateY(20px); transition: transform 0.3s; }
@@ -238,10 +202,10 @@
   .modal-actions button { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.65rem 1.2rem; border-radius: 2px; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(201,169,110,0.3); }
   .modal-actions .btn-secondary { background: transparent; color: var(--text-muted); }
   .modal-actions .btn-secondary:hover { background: var(--cream); }
+  .modal-actions .btn-primary { background: var(--navy); color: var(--gold-light); border-color: var(--navy); }
   .modal-actions .btn-danger { background: var(--busy); color: white; border-color: var(--busy); }
   .modal-actions .btn-danger:hover { opacity: 0.85; }
 
-  /* ── FOOTER ── */
   footer { background: var(--navy); padding: 2rem; text-align: center; position: relative; z-index: 1; margin-top: 2rem; border-top: 1px solid rgba(201,169,110,0.15); }
   footer p { font-family: 'Cormorant Garamond', serif; font-size: 0.85rem; color: rgba(201,169,110,0.5); letter-spacing: 0.08em; }
   footer .footer-logo { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--gold-light); margin-bottom: 0.4rem; font-style: italic; }
@@ -258,21 +222,16 @@
 </head>
 <body>
 
-<!-- Loading Overlay -->
 <div id="loadingOverlay">
   <div class="loading-logo">Wilton Weavers</div>
   <div class="loading-bar"><div class="loading-bar-fill"></div></div>
   <div class="loading-text">Connecting to schedule…</div>
 </div>
 
-<!-- Config Banner (shows if firebase-config.js is missing) -->
 <div id="configBanner">
-  <strong>Firebase not configured.</strong>
-  Create a <code>firebase-config.js</code> file (see HTML comments for instructions) and add it to <code>.gitignore</code>.
-  Until then, bookings only save locally on your device.
+  ⚠️ <strong>Firebase not configured.</strong> Please fill in your Firebase project credentials in the <code>firebaseConfig</code> object in the script. Until then, data won't sync across users.
 </div>
 
-<!-- Header -->
 <header>
   <div class="header-inner">
     <div class="brand">
@@ -295,7 +254,6 @@
 
 <div class="main-grid">
 
-  <!-- AVAILABILITY PANEL -->
   <div class="panel availability-panel">
     <div class="panel-header">
       <div class="icon">📅</div>
@@ -307,30 +265,29 @@
         <span class="status-text" id="connStatus">Connecting to live schedule…</span>
       </div>
       <div class="week-nav">
-        <button class="week-btn" id="prevBtn" onclick="changePage(-1)">←</button>
-        <span class="week-nav-label" id="weekLabel">Loading…</span>
-        <button class="week-btn" onclick="changePage(1)">→</button>
+        <button class="week-btn" onclick="changeWeek(-1)">←</button>
+        <span class="week-nav-label" id="weekLabel"></span>
+        <button class="week-btn" onclick="changeWeek(1)">→</button>
       </div>
       <div class="slots-grid" id="slotsGrid"></div>
       <div class="legend">
         <div class="legend-item"><div class="legend-dot free"></div> Available</div>
         <div class="legend-item"><div class="legend-dot busy"></div> Unavailable</div>
         <div class="legend-item"><div class="legend-dot scheduled"></div> Scheduled</div>
-        <div class="legend-item"><div class="legend-dot past"></div> Past</div>
+        <div class="legend-item"><div class="legend-dot ongoing"></div> Ongoing</div>
+        <div class="legend-item"><div class="legend-dot past"></div> Past Slots</div>
       </div>
-      <!-- CEO Controls (only visible when CEO logged in) -->
       <div class="ceo-controls">
         <div style="margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid rgba(201,169,110,0.15);">
           <div style="font-size:0.73rem;color:var(--gold);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.8rem;font-style:italic;">⚙ CEO Controls</div>
-          <div class="add-slot-row">
-            <select id="addDay" style="flex:1;min-width:120px;"></select>
+          <div class="add-slot-row visible">
+            <select id="addDay" style="flex:1"></select>
             <input type="time" id="addTime" value="09:00" />
             <select id="addStatus"><option value="free">Free</option><option value="busy">Busy</option></select>
             <button class="add-slot-btn" onclick="addSlot()">+ Add</button>
           </div>
         </div>
       </div>
-      <!-- CEO Login -->
       <div class="ceo-section">
         <div class="ceo-hint" id="ceoHint" onclick="toggleLogin()">⚙ CEO Portal Access</div>
         <div class="pw-row" id="pwRow">
@@ -345,7 +302,6 @@
     </div>
   </div>
 
-  <!-- CONFIRMED MEETINGS PANEL -->
   <div class="panel meetings-panel">
     <div class="panel-header">
       <div class="icon">📮</div>
@@ -358,7 +314,6 @@
     </div>
   </div>
 
-  <!-- BOOKING PANEL -->
   <div class="panel quick-book-panel">
     <div class="panel-header">
       <div class="icon">✉</div>
@@ -408,22 +363,21 @@
   </div>
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-<!--
-  Load firebase-config.js from same directory.
-  This file is NOT committed to GitHub (add to .gitignore).
-  It sets window.FIREBASE_CONFIG = { apiKey, authDomain, ... }
--->
-<script src="firebase-config.js" onerror="window.FIREBASE_CONFIG=null;"></script>
-
 <script>
-// ── CEO PASSWORD (hardcoded as requested) ────────────────────
-const CEO_PASSWORD = 'Wilton@2026';
+const firebaseConfig = {
+  apiKey: "AIzaSyAPnlkGBYsO3zivxgIySiruI_JTkYTmunw",
+  authDomain: "website-f3844.firebaseapp.com",
+  projectId: "website-f3844",
+  storageBucket: "website-f3844.firebasestorage.app",
+  messagingSenderId: "501105783949",
+  appId: "1:501105783949:web:ca7a6854afccb6499c9ec4",
+  measurementId: "G-FXRHLV9CE1"
+};
 
-// ── CONSTANTS ────────────────────────────────────────────────
+const CEO_PASSWORD = 'Wilton@2026';
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const TIME_SLOTS = [
   '09:00','09:30','10:00','10:30','11:00','11:30',
@@ -431,281 +385,160 @@ const TIME_SLOTS = [
   '15:00','15:30','16:00','16:30','17:00','17:30'
 ];
 
-// ── STATE ────────────────────────────────────────────────────
 let isCEO = false;
-let pageOffset = 0;          // 2-day page index (0 = first 2 upcoming days)
+let currentWeekOffset = 0;
 let _selectedDate = null;
 let _selectedTimes = [];
 let schedule = {};
 let meetings = [];
 let db = null;
-let _expireCheckTimer = null;
+let _refreshTimer = null;
 
-// ── FIREBASE INIT ────────────────────────────────────────────
+// ── CHANGE 3: limitless upcoming days ──────────────────────────────────────
+// Previously allUpcomingDays only looked 4 weeks ahead.
+// Now we scan far enough (52 weeks) so there is no practical date limit.
+const WEEK_SCAN_LIMIT = 52;
+
 function initFirebase() {
-  const cfg = window.FIREBASE_CONFIG;
-
-  if (!cfg) {
-    // firebase-config.js missing or failed to load
+  const isConfigured = firebaseConfig.apiKey !== 'PASTE_YOUR_API_KEY_HERE';
+  if (!isConfigured) {
     document.getElementById('configBanner').style.display = 'block';
+    hideLoading();
     schedule = JSON.parse(localStorage.getItem('ww_schedule') || '{}');
     meetings = JSON.parse(localStorage.getItem('ww_meetings') || '[]');
-    hideLoading();
-    renderSlots();
-    renderMeetings();
-    setConnStatus(false);
-    startExpireChecker();
+    renderSlots(); renderMeetings(); setConnStatus(false);
     return;
   }
-
   try {
-    firebase.initializeApp(cfg);
+    firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
-
-    // Offline persistence for resilience
-    db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
-
-    // Real-time schedule listener
+    db.enablePersistence().catch(() => {});
     db.collection('schedule').onSnapshot(snapshot => {
       schedule = {};
       snapshot.forEach(doc => { schedule[doc.id] = doc.data(); });
-      renderSlots();
-      hideLoading();
-      setConnStatus(true);
-    }, err => {
-      console.error('Schedule error:', err);
-      setConnStatus(false);
-      hideLoading();
-    });
-
-    // Real-time meetings listener — sorted by date+time ascending
-    db.collection('meetings').orderBy('date').orderBy('time').onSnapshot(snapshot => {
+      renderSlots(); renderMeetings(); hideLoading(); setConnStatus(true);
+    }, err => { console.error(err); setConnStatus(false); hideLoading(); });
+    db.collection('meetings').orderBy('bookedAt', 'desc').onSnapshot(snapshot => {
       meetings = [];
       snapshot.forEach(doc => { meetings.push({ firestoreId: doc.id, ...doc.data() }); });
       renderMeetings();
-      renderSlots(); // refresh slots in case status changed
-    }, err => {
-      console.error('Meetings error:', err);
-    });
-
-    startExpireChecker();
-
+    }, err => { console.error(err); });
   } catch (e) {
-    console.error('Firebase init error:', e);
-    hideLoading();
-    setConnStatus(false);
+    console.error(e); hideLoading(); setConnStatus(false);
     showToast('Connection Error', 'Could not connect to Firebase.', true);
   }
 }
 
-// ── EXPIRE CHECKER ───────────────────────────────────────────
-// Checks every 60 seconds: removes meetings whose END time has passed.
-// Also auto-frees their schedule slots and re-renders.
-function startExpireChecker() {
-  checkExpiredMeetings(); // run immediately on load
-  _expireCheckTimer = setInterval(checkExpiredMeetings, 60 * 1000);
-}
-
-async function checkExpiredMeetings() {
-  const now = new Date();
-  const expired = meetings.filter(m => {
-    // A meeting is "expired" when its END time has passed
-    const endTimeStr = m.endTime || getNextSlotTime(m.time);
-    const meetingEnd = new Date(m.date + 'T' + endTimeStr + ':00');
-    return meetingEnd <= now;
-  });
-
-  if (!expired.length) return;
-
-  // Group by groupId so we process each booking once
-  const expiredGroups = new Set(expired.map(m => m.groupId || m.firestoreId));
-
-  for (const groupId of expiredGroups) {
-    const groupMeetings = meetings.filter(m => (m.groupId || m.firestoreId) === groupId);
-    // Free up slots
-    groupMeetings.forEach(m => {
-      if (schedule[m.date]) schedule[m.date][m.time] = 'free';
-    });
-    // Delete from Firestore (or localStorage)
-    for (const m of groupMeetings) {
-      if (m.firestoreId) await deleteMeetingRecord(m.firestoreId);
-    }
-    // Save freed schedule
-    if (groupMeetings.length > 0) {
-      await saveScheduleDay(groupMeetings[0].date);
-    }
-  }
-
-  // Re-render smoothly after cleanup
-  renderSlots();
-  renderMeetings();
-}
-
-// ── STATUS ───────────────────────────────────────────────────
 function setConnStatus(online) {
   document.getElementById('connIndicator').className = 'status-indicator ' + (online ? 'online' : 'offline');
-  document.getElementById('connStatus').textContent = online
-    ? 'Live 
-    : 'Offline — not syncing to other users';
+  document.getElementById('connStatus').innerHTML = online ? 'Live — changes sync to all users instantly' : 'Offline — not syncing to other users';
 }
 
 function hideLoading() {
-  const overlay = document.getElementById('loadingOverlay');
-  overlay.classList.add('hidden');
-  setTimeout(() => { overlay.style.display = 'none'; }, 600);
+  const o = document.getElementById('loadingOverlay');
+  o.classList.add('hidden');
+  setTimeout(() => o.style.display = 'none', 500);
 }
 
-// ── FIRESTORE HELPERS ────────────────────────────────────────
 async function saveScheduleDay(dateStr) {
-  if (!db) {
-    localStorage.setItem('ww_schedule', JSON.stringify(schedule));
-    return;
-  }
-  try {
-    if (schedule[dateStr]) {
-      await db.collection('schedule').doc(dateStr).set(schedule[dateStr]);
-    }
-  } catch (e) {
-    console.error('Save schedule error:', e);
-    showToast('Save Error', 'Could not save to database.', true);
-  }
+  if (!db) { localStorage.setItem('ww_schedule', JSON.stringify(schedule)); return; }
+  try { await db.collection('schedule').doc(dateStr).set(schedule[dateStr]); }
+  catch (e) { console.error(e); showToast('Save Error', 'Could not save to database.', true); }
 }
 
 async function saveMeeting(mtg) {
-  if (!db) {
-    meetings.push(mtg);
-    localStorage.setItem('ww_meetings', JSON.stringify(meetings));
-    return;
-  }
-  try {
-    await db.collection('meetings').add(mtg);
-  } catch (e) {
-    console.error('Save meeting error:', e);
-    showToast('Save Error', 'Could not save meeting.', true);
-  }
+  if (!db) { meetings.push(mtg); localStorage.setItem('ww_meetings', JSON.stringify(meetings)); return; }
+  try { await db.collection('meetings').add(mtg); }
+  catch (e) { console.error(e); showToast('Save Error', 'Could not save meeting.', true); }
 }
 
-async function deleteMeetingRecord(id) {
+async function deleteMeeting(id) {
   if (!db) return;
-  try {
-    await db.collection('meetings').doc(id).delete();
-  } catch (e) {
-    console.error('Delete meeting error:', e);
-    showToast('Delete Error', 'Could not remove meeting.', true);
-  }
+  try { await db.collection('meetings').doc(id).delete(); }
+  catch (e) { console.error(e); showToast('Delete Error', 'Could not remove meeting.', true); }
 }
 
-// ── DATE / TIME HELPERS ──────────────────────────────────────
-function todayStr() {
-  const now = new Date();
-  return now.toISOString().split('T')[0];
-}
+function todayStr() { return new Date().toISOString().split('T')[0]; }
 function isDatePast(d) { return d < todayStr(); }
 function isToday(d) { return d === todayStr(); }
-function isSlotPast(dateStr, time24) {
-  return new Date(dateStr + 'T' + time24 + ':00') <= new Date();
+function isSlotPast(dateStr, time24) { return new Date(dateStr + 'T' + time24 + ':00') <= new Date(); }
+
+// ── NEW: check if a meeting slot is currently ongoing ──────────────────────
+// A slot is "ongoing" when now >= slot start AND now < slot end (30 min later)
+function isSlotOngoing(dateStr, time24) {
+  const slotStart = new Date(dateStr + 'T' + time24 + ':00');
+  const slotEnd = new Date(slotStart.getTime() + 30 * 60 * 1000);
+  const now = new Date();
+  return now >= slotStart && now < slotEnd;
 }
 
-// ── WEEK / DAY UTILS ─────────────────────────────────────────
-// Returns Mon–Sat for a given week offset (0 = current week)
-function getWeekDates(weekOffset = 0) {
+// ── NEW: check if a meeting group is fully completed ──────────────────────
+// A meeting is "completed" when the end time of its last slot has passed.
+function isMeetingCompleted(m) {
+  // endTime is stored as "HH:MM" for the end of the meeting
+  const endTimeStr = m.endTime || getNextSlotTime(m.time);
+  return new Date(m.date + 'T' + endTimeStr + ':00') <= new Date();
+}
+
+function getWeekDates(offset = 0) {
   const now = new Date();
-  const day = now.getDay(); // 0=Sun
-  const diff = day === 0 ? -6 : 1 - day; // days to Monday
+  const day = now.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
   const monday = new Date(now);
-  monday.setDate(now.getDate() + diff + weekOffset * 7);
+  monday.setDate(now.getDate() + diff + offset * 7);
   monday.setHours(0, 0, 0, 0);
   return DAYS.map((name, i) => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
-    return {
-      name,
-      date: d.toISOString().split('T')[0],
-      display: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-    };
+    return { name, date: d.toISOString().split('T')[0], display: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) };
   });
 }
 
-// Get an ENDLESS flat list of upcoming (non-past) days.
-// Looks ahead enough weeks to always have plenty of pages.
-function getAllUpcomingDays(weeksAhead = 52) {
-  const result = [];
-  for (let w = 0; w <= weeksAhead; w++) {
-    getWeekDates(w).forEach(d => {
-      if (!isDatePast(d.date)) result.push(d);
-    });
-  }
-  return result;
-}
-
-function changePage(dir) {
-  const newOffset = pageOffset + dir;
-  if (newOffset < 0) return; // can't go before first page
-  // Check we're not going beyond available days
-  const allDays = getAllUpcomingDays();
-  if (newOffset * 2 >= allDays.length) return; // no more pages
-  pageOffset = newOffset;
-  document.getElementById('prevBtn').disabled = pageOffset === 0;
-  renderSlots();
-}
+function changeWeek(dir) { currentWeekOffset = Math.max(0, currentWeekOffset + dir); renderSlots(); }
 
 function ensureDefaultSlots(dateStr) {
   if (!schedule[dateStr]) schedule[dateStr] = {};
-  TIME_SLOTS.forEach(t => {
-    if (!schedule[dateStr][t]) schedule[dateStr][t] = 'free';
-  });
+  TIME_SLOTS.forEach(t => { if (!schedule[dateStr][t]) schedule[dateStr][t] = 'free'; });
 }
 
-// ── TIME FORMAT HELPERS ──────────────────────────────────────
 function formatTime12(t) {
-  if (!t) return '';
-  const [H, M] = t.split(':');
-  const h = parseInt(H);
+  const [H, M] = t.split(':'); const h = parseInt(H);
   return `${h % 12 === 0 ? 12 : h % 12}:${M} ${h >= 12 ? 'PM' : 'AM'}`;
 }
 
 function getNextSlotTime(t) {
   const idx = TIME_SLOTS.indexOf(t);
   if (idx !== -1 && idx < TIME_SLOTS.length - 1) return TIME_SLOTS[idx + 1];
-  const [h, m] = t.split(':').map(Number);
-  const total = h * 60 + m + 30;
-  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+  const [h, m] = t.split(':').map(Number); const total = h * 60 + m + 30;
+  return `${String(Math.floor(total / 60)).padStart(2,'0')}:${String(total % 60).padStart(2,'0')}`;
 }
 
-// ── RENDER SLOTS ─────────────────────────────────────────────
 function renderSlots() {
-  const grid = document.getElementById('slotsGrid');
+  // ── CHANGE 3: scan WEEK_SCAN_LIMIT weeks so dates are limitless ───────────
+  const allUpcomingDays = [];
+  for (let w = 0; w <= WEEK_SCAN_LIMIT; w++) {
+    getWeekDates(w).forEach(d => {
+      if (!isDatePast(d.date)) allUpcomingDays.push(d);
+    });
+  }
+  const pageStart = currentWeekOffset * 2;
+  const pageDays = allUpcomingDays.slice(pageStart, pageStart + 2);
 
-  // Get 2 days for current page from the ENDLESS list
-  const allDays = getAllUpcomingDays();
-  const pageStart = pageOffset * 2;
-  const pageDays = allDays.slice(pageStart, pageStart + 2);
-
-  // Update nav label
   if (pageDays.length > 0) {
-    const label = pageDays.length > 1
-      ? `${pageDays[0].display} – ${pageDays[pageDays.length - 1].display}`
-      : pageDays[0].display;
-    document.getElementById('weekLabel').textContent = label;
+    const last = pageDays[pageDays.length - 1];
+    document.getElementById('weekLabel').textContent = pageDays[0].display + (pageDays.length > 1 ? ' – ' + last.display : '');
   }
 
-  // Prev button disabled on first page
-  document.getElementById('prevBtn').disabled = pageOffset === 0;
+  // Populate CEO addDay dropdown with current page days
+  document.getElementById('addDay').innerHTML = pageDays.map(d => `<option value="${d.date}">${d.name} ${d.display}</option>`).join('');
 
-  // Update CEO day selector to show current page days
-  document.getElementById('addDay').innerHTML = pageDays
-    .map(d => `<option value="${d.date}">${d.name} ${d.display}</option>`)
-    .join('');
-
-  // Ensure default slots exist for visible days
   pageDays.forEach(d => ensureDefaultSlots(d.date));
 
-  // Build new rows
-  const fragment = document.createDocumentFragment();
+  const grid = document.getElementById('slotsGrid');
+  grid.innerHTML = '';
 
   pageDays.forEach(({ name, date, display }) => {
     const dayToday = isToday(date);
-
     const row = document.createElement('div');
     row.className = 'day-row';
 
@@ -722,64 +555,62 @@ function renderSlots() {
       const expired = isSlotPast(date, time);
       const slot = document.createElement('div');
 
-      if (expired && rawStatus !== 'scheduled') {
+      if (rawStatus === 'scheduled') {
+        // ── CHANGE 2: show ongoing state for active meeting slots ──────────
+        const ongoing = isSlotOngoing(date, time);
+        if (ongoing) {
+          slot.className = 'slot ongoing';
+          const mtg = meetings.find(m => m.date === date && m.time === time);
+          slot.textContent = `${formatTime12(time)} — Ongoing`;
+          slot.title = mtg ? `Meeting with ${mtg.name} — In Progress` : 'Meeting in progress';
+        } else if (expired) {
+          slot.className = 'slot past-slot';
+          slot.textContent = formatTime12(time);
+          slot.title = 'This meeting has ended';
+        } else {
+          slot.className = 'slot scheduled';
+          const mtg = meetings.find(m => m.date === date && m.time === time);
+          slot.textContent = `${formatTime12(time)} — ${mtg ? mtg.name.split(' ')[0] : 'Booked'}`;
+          slot.title = mtg ? `Meeting with ${mtg.name}` : '';
+          if (isCEO) { slot.classList.add('ceo-editable'); slot.style.cursor = 'pointer'; slot.onclick = () => openCancelModalByData(date, time); }
+        }
+      } else if (expired && rawStatus !== 'scheduled') {
         slot.className = 'slot past-slot';
         slot.textContent = formatTime12(time);
         slot.title = 'This time has passed';
-
-      } else if (rawStatus === 'scheduled') {
-        slot.className = 'slot scheduled';
-        const mtg = meetings.find(m => m.date === date && m.time === time);
-        slot.textContent = `${formatTime12(time)} — ${mtg ? mtg.name.split(' ')[0] : 'Booked'}`;
-        slot.title = mtg ? `Meeting with ${mtg.name}` : '';
-        if (isCEO) {
-          slot.classList.add('ceo-editable');
-          slot.style.cursor = 'pointer';
-          slot.onclick = () => openCancelModalByData(date, time);
-        }
-
       } else if (rawStatus === 'busy') {
         slot.className = 'slot busy';
         slot.textContent = formatTime12(time);
-        if (isCEO && !expired) {
-          slot.classList.add('ceo-editable');
-          slot.style.cursor = 'pointer';
-          slot.title = 'Click to mark free';
-          slot.onclick = () => toggleSlot(date, time);
-        }
-
+        if (isCEO && !expired) { slot.classList.add('ceo-editable'); slot.style.cursor = 'pointer'; slot.title = 'Click to mark free'; slot.onclick = () => toggleSlot(date, time); }
       } else {
-        // free
         slot.className = 'slot free';
         slot.textContent = formatTime12(time);
-        if (!expired) {
-          if (!isCEO) {
-            slot.title = 'Click to book';
-            slot.onclick = () => handleSlotSelection(date, time);
-          } else {
-            slot.classList.add('ceo-editable');
-            slot.title = 'Click to mark busy';
-            slot.onclick = () => toggleSlot(date, time);
-          }
-        }
+        if (!isCEO && !expired) { slot.classList.add('ceo-editable'); slot.style.cursor = 'pointer'; slot.title = 'Click to book'; slot.onclick = () => handleSlotSelection(date, time); }
+        if (isCEO && !expired) { slot.classList.add('ceo-editable'); slot.style.cursor = 'pointer'; slot.title = 'Click to mark busy'; slot.onclick = () => toggleSlot(date, time); }
       }
-
       slotsDiv.appendChild(slot);
     });
 
     row.appendChild(labelDiv);
     row.appendChild(slotsDiv);
-    fragment.appendChild(row);
+    grid.appendChild(row);
   });
 
-  grid.innerHTML = '';
-  grid.appendChild(fragment);
+  // Schedule next auto-refresh at the next 30-min boundary so ongoing/past states update
+  scheduleAutoRefresh();
 }
 
-// ── TOGGLE SLOT (CEO) ────────────────────────────────────────
+// ── NEW: auto-refresh at every 30-min boundary ─────────────────────────────
+function scheduleAutoRefresh() {
+  if (_refreshTimer) clearTimeout(_refreshTimer);
+  const now = new Date();
+  const msToNextSlot = (30 - (now.getMinutes() % 30)) * 60 * 1000 - now.getSeconds() * 1000 - now.getMilliseconds();
+  _refreshTimer = setTimeout(() => { renderSlots(); renderMeetings(); }, msToNextSlot + 1000);
+}
+
 async function toggleSlot(date, time) {
   if (!schedule[date]) schedule[date] = {};
-  if (schedule[date][time] === 'scheduled') return; // can't toggle booked slots
+  if (schedule[date][time] === 'scheduled') return;
   schedule[date][time] = schedule[date][time] === 'free' ? 'busy' : 'free';
   renderSlots();
   await saveScheduleDay(date);
@@ -797,281 +628,178 @@ async function addSlot() {
   showToast('Slot Added', `${formatTime12(time)} marked as ${status}.`);
 }
 
-// ── BOOKING FORM ─────────────────────────────────────────────
 function openBookingForm(date, time) {
-  _selectedDate = date;
-  _selectedTimes = [time];
-  updateBookingDisplay();
+  _selectedDate = date; _selectedTimes = [time]; updateBookingDisplay();
   const d = new Date(date + 'T00:00:00');
-  document.getElementById('bookingTitle').textContent =
-    `Meeting on ${d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}`;
+  document.getElementById('bookingTitle').textContent = `Meeting on ${d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}`;
   document.getElementById('visitorName').value = '';
   document.getElementById('quickBookContainer').classList.add('active');
   document.getElementById('noBookingMsg').style.display = 'none';
   setTimeout(() => {
-    document.querySelector('.quick-book-panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(() => document.getElementById('visitorName').focus(), 500);
+    document.querySelector('.quick-book-panel').scrollIntoView({ behavior:'smooth', block:'center' });
+    setTimeout(() => document.getElementById('visitorName').focus(), 600);
   }, 100);
 }
 
 function updateBookingDisplay() {
   const btn = document.getElementById('addSecondSlotBtn');
   if (_selectedTimes.length === 0) {
-    document.getElementById('selectedSlotDisplay').textContent = 'None';
-    btn.style.display = 'none';
+    document.getElementById('selectedSlotDisplay').textContent = 'None'; btn.style.display = 'none';
   } else if (_selectedTimes.length === 1) {
     document.getElementById('selectedSlotDisplay').textContent = `${formatTime12(_selectedTimes[0])} (30 mins)`;
     const next = getNextSlotTime(_selectedTimes[0]);
     const nextStatus = schedule[_selectedDate] && schedule[_selectedDate][next];
-    const canExtend = nextStatus === 'free' && !isSlotPast(_selectedDate, next);
-    btn.style.display = canExtend ? 'block' : 'none';
+    btn.style.display = (nextStatus === 'free' && !isSlotPast(_selectedDate, next)) ? 'block' : 'none';
     btn.disabled = false;
   } else {
-    document.getElementById('selectedSlotDisplay').textContent =
-      `${formatTime12(_selectedTimes[0])} – ${formatTime12(getNextSlotTime(_selectedTimes[1]))} (1 hour)`;
+    document.getElementById('selectedSlotDisplay').textContent = `${formatTime12(_selectedTimes[0])} - ${formatTime12(getNextSlotTime(_selectedTimes[1]))} (1 hour)`;
     btn.style.display = 'none';
   }
 }
 
 function handleSlotSelection(date, time) {
-  if (_selectedTimes.length === 0 || _selectedDate !== date) {
-    _selectedDate = date;
-    _selectedTimes = [time];
-    openBookingForm(date, time);
-  } else if (_selectedTimes.length === 1) {
+  if (_selectedTimes.length === 0 || _selectedDate !== date) { _selectedDate = date; _selectedTimes = [time]; openBookingForm(date, time); }
+  else if (_selectedTimes.length === 1) {
     const next = getNextSlotTime(_selectedTimes[0]);
-    if (time === next) {
-      _selectedTimes.push(time);
-      updateBookingDisplay();
-      showToast('Extended', '1-hour slot selected');
-    } else if (time === _selectedTimes[0]) {
-      cancelBooking();
-    } else {
-      _selectedTimes = [time];
-      updateBookingDisplay();
-      showToast('Changed', 'Selection updated');
-    }
-  } else {
-    _selectedTimes = [time];
-    updateBookingDisplay();
-    showToast('Changed', 'Selection reset to this slot');
-  }
+    if (time === next) { _selectedTimes.push(time); updateBookingDisplay(); showToast('Extended', '1-hour slot selected'); }
+    else if (time === _selectedTimes[0]) { cancelBooking(); }
+    else { _selectedTimes = [time]; updateBookingDisplay(); showToast('Changed', 'Selection updated'); }
+  } else { _selectedTimes = [time]; updateBookingDisplay(); showToast('Changed', 'Selection reset to this slot'); }
 }
 
 function addSecondSlot() {
   const next = getNextSlotTime(_selectedTimes[0]);
-  const nextStatus = schedule[_selectedDate] && schedule[_selectedDate][next];
-  if (nextStatus !== 'free' || isSlotPast(_selectedDate, next)) {
-    showToast('Unavailable', 'Next slot is not free.', true);
-    return;
-  }
-  _selectedTimes.push(next);
-  updateBookingDisplay();
-  showToast('Extended', '1-hour booking selected');
+  if (!schedule[_selectedDate][next] || schedule[_selectedDate][next] !== 'free' || isSlotPast(_selectedDate, next)) { showToast('Unavailable', 'Next slot is not free', true); return; }
+  _selectedTimes.push(next); updateBookingDisplay(); showToast('Extended', '1-hour booking selected');
 }
 
 function cancelBooking() {
   document.getElementById('quickBookContainer').classList.remove('active');
   document.getElementById('noBookingMsg').style.display = 'block';
-  _selectedDate = null;
-  _selectedTimes = [];
+  _selectedDate = null; _selectedTimes = [];
 }
 
 async function confirmBooking() {
   const name = document.getElementById('visitorName').value.trim();
   if (!name) { showToast('Required', 'Please enter your name.', true); return; }
   if (!_selectedTimes.length) { showToast('No Slot', 'Please select a time slot.', true); return; }
-
   const startTime = _selectedTimes[0];
-  const endTime = _selectedTimes.length === 2
-    ? getNextSlotTime(_selectedTimes[1])
-    : getNextSlotTime(startTime);
+  const endTime = _selectedTimes.length === 2 ? getNextSlotTime(_selectedTimes[1]) : getNextSlotTime(startTime);
   const duration = _selectedTimes.length === 1 ? '30 mins' : '1 hour';
   const bookingGroupId = 'grp_' + Date.now();
-
-  // Optimistic UI update
   _selectedTimes.forEach(t => { schedule[_selectedDate][t] = 'scheduled'; });
   renderSlots();
-
-  // Persist to Firestore
   for (const time of _selectedTimes) {
-    await saveMeeting({
-      groupId: bookingGroupId,
-      name,
-      date: _selectedDate,
-      time,
-      startTime,
-      endTime,
-      duration,
-      type: 'In-Person',
-      bookedAt: new Date().toISOString()
-    });
+    await saveMeeting({ groupId: bookingGroupId, name, date: _selectedDate, time, startTime, endTime, duration, type: 'In-Person', bookedAt: new Date().toISOString() });
   }
   await saveScheduleDay(_selectedDate);
-
-  const dateStr = new Date(_selectedDate + 'T00:00:00')
-    .toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long' });
+  const dateStr = new Date(_selectedDate + 'T00:00:00').toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'long' });
   showToast('✓ Confirmed', `Your ${duration} meeting on ${dateStr} at ${formatTime12(startTime)} is booked!`);
   cancelBooking();
 }
 
-// ── RENDER MEETINGS ──────────────────────────────────────────
-// Only shows meetings whose END time has NOT yet passed.
+// ── CHANGE 1 & 2: renderMeetings hides completed meetings, highlights ongoing
 function renderMeetings() {
   const list = document.getElementById('meetingList');
-  const now = new Date();
-
-  // Filter out expired meetings before rendering
-  const activeMeetings = meetings.filter(m => {
-    const endTimeStr = m.endTime || getNextSlotTime(m.time);
-    return new Date(m.date + 'T' + endTimeStr + ':00') > now;
-  });
-
-  if (!activeMeetings.length) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No upcoming meetings scheduled</p></div>`;
-    return;
-  }
-
-  // Deduplicate by groupId — show each booking once
   const seenGroups = new Set();
   const cards = [];
 
-  [...activeMeetings]
-    .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
-    .forEach(m => {
-      const gid = m.groupId || m.firestoreId;
-      if (seenGroups.has(gid)) return;
-      seenGroups.add(gid);
+  // Filter out completed meetings (those whose end time has already passed)
+  const visibleMeetings = [...meetings].sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
 
-      const dateStr = new Date(m.date + 'T00:00:00')
-        .toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
-      const timeDisplay = m.duration === '1 hour'
-        ? `${formatTime12(m.startTime)} – ${formatTime12(m.endTime)}`
-        : formatTime12(m.time);
+  visibleMeetings.forEach(m => {
+    const gid = m.groupId || m.firestoreId;
+    if (seenGroups.has(gid)) return;
 
-      cards.push(`
-        <div class="meeting-card">
-          <div class="mc-name">${escHtml(m.name)}</div>
-          <div class="mc-org">Visitor</div>
-          <div class="mc-datetime">📅 ${dateStr} · ${timeDisplay} · ${m.duration}</div>
-          <span class="mc-badge">✓ Confirmed</span>
-          <button class="mc-cancel-btn" onclick="openCancelModalByData('${escHtml(m.date)}','${escHtml(m.startTime || m.time)}')">✗ Cancel</button>
-        </div>`);
-    });
+    // ── CHANGE 1: skip meetings that are fully completed ───────────────────
+    if (isMeetingCompleted(m)) { seenGroups.add(gid); return; }
 
-  list.innerHTML = cards.join('');
+    seenGroups.add(gid);
+
+    const dateStr = new Date(m.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'long', year:'numeric' });
+    const timeDisplay = m.duration === '1 hour' ? `${formatTime12(m.startTime)} - ${formatTime12(m.endTime)}` : formatTime12(m.time);
+
+    // ── CHANGE 2: detect if this meeting is currently ongoing ──────────────
+    const ongoing = isSlotOngoing(m.date, m.startTime || m.time);
+
+    const cardClass = ongoing ? 'meeting-card ongoing-card' : 'meeting-card';
+    const badgeClass = ongoing ? 'mc-badge ongoing-badge' : 'mc-badge';
+    const badgeText = ongoing ? '● Meeting in Progress' : '✓ Confirmed';
+
+    cards.push(`<div class="${cardClass}"><div class="mc-name">${escHtml(m.name)}</div><div class="mc-org">Visitor</div><div class="mc-datetime">📅 ${dateStr} · ${timeDisplay} · ${m.duration}</div><span class="${badgeClass}">${badgeText}</span><button class="mc-cancel-btn" onclick="openCancelModalByData('${m.date}','${m.startTime || m.time}')">✗ Cancel</button></div>`);
+  });
+
+  if (!cards.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No meetings scheduled yet</p></div>`;
+  } else {
+    list.innerHTML = cards.join('');
+  }
 }
 
-// ── CEO AUTH ─────────────────────────────────────────────────
 function toggleLogin() {
-  const pw = document.getElementById('pwRow');
-  pw.classList.toggle('visible');
+  const pw = document.getElementById('pwRow'); pw.classList.toggle('visible');
   if (pw.classList.contains('visible')) document.getElementById('ceoPassword').focus();
 }
 
 async function ceoLogin() {
-  const btn = document.getElementById('ceoLoginBtn');
-  const input = document.getElementById('ceoPassword');
-  btn.textContent = 'Verifying…';
-  btn.disabled = true;
+  const btn = document.getElementById('ceoLoginBtn'); const input = document.getElementById('ceoPassword');
+  btn.textContent = 'Verifying…'; btn.disabled = true;
   await new Promise(r => setTimeout(r, 700));
-  btn.textContent = 'Access';
-  btn.disabled = false;
-
+  btn.textContent = 'Access'; btn.disabled = false;
   if (input.value === CEO_PASSWORD) {
-    isCEO = true;
-    document.body.classList.add('ceo-active');
+    isCEO = true; document.body.classList.add('ceo-active');
     document.getElementById('pwRow').classList.remove('visible');
     document.getElementById('ceoHint').style.display = 'none';
     document.getElementById('ceoLoggedIn').style.display = 'block';
-    input.value = '';
-    renderSlots();
-    renderMeetings();
+    input.value = ''; renderSlots(); renderMeetings();
     showToast('CEO Portal Active', 'You can now manage slots and cancel meetings.');
-  } else {
-    showToast('Access Denied', 'Incorrect access key.', true);
-    input.value = '';
-    input.focus();
-  }
+  } else { showToast('Access Denied', 'Incorrect access key.', true); input.value = ''; input.focus(); }
 }
-document.getElementById('ceoPassword').addEventListener('keydown', e => {
-  if (e.key === 'Enter') ceoLogin();
-});
+document.getElementById('ceoPassword').addEventListener('keydown', e => { if (e.key === 'Enter') ceoLogin(); });
 
 function ceoLogout() {
-  isCEO = false;
-  document.body.classList.remove('ceo-active');
+  isCEO = false; document.body.classList.remove('ceo-active');
   document.getElementById('ceoLoggedIn').style.display = 'none';
   document.getElementById('ceoHint').style.display = 'block';
-  renderSlots();
-  renderMeetings();
+  renderSlots(); renderMeetings();
 }
 
-// ── CANCEL MEETING ───────────────────────────────────────────
 function openCancelModalByData(date, startTime) {
-  const found = meetings.filter(m =>
-    m.date === date && (m.startTime === startTime || m.time === startTime)
-  );
+  const found = meetings.filter(m => m.date === date && (m.startTime === startTime || m.time === startTime));
   if (!found.length) return;
   const m = found[0];
-  const dateStr = new Date(m.date + 'T00:00:00')
-    .toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long' });
-  const timeDisplay = m.duration === '1 hour'
-    ? `${formatTime12(m.startTime)} – ${formatTime12(m.endTime)}`
-    : formatTime12(m.time);
-  document.getElementById('cancelModalText').textContent =
-    `Cancel meeting with ${m.name} on ${dateStr} at ${timeDisplay}?`;
+  const dateStr = new Date(m.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'long' });
+  const timeDisplay = m.duration === '1 hour' ? `${formatTime12(m.startTime)} - ${formatTime12(m.endTime)}` : formatTime12(m.time);
+  document.getElementById('cancelModalText').textContent = `Cancel meeting with ${m.name} on ${dateStr} at ${timeDisplay}?`;
   document.getElementById('confirmCancelBtn').onclick = () => cancelMeetingByData(date, startTime);
   document.getElementById('cancelModal').classList.add('active');
 }
 
 async function cancelMeetingByData(date, startTime) {
-  const toDelete = meetings.filter(m =>
-    m.date === date && (m.startTime === startTime || m.time === startTime)
-  );
-  // Free up schedule slots optimistically
-  toDelete.forEach(m => {
-    if (schedule[m.date]) schedule[m.date][m.time] = 'free';
-  });
+  const toDelete = meetings.filter(m => m.date === date && (m.startTime === startTime || m.time === startTime));
+  toDelete.forEach(m => { if (schedule[m.date]) schedule[m.date][m.time] = 'free'; });
   renderSlots();
-  // Delete from Firestore
-  for (const m of toDelete) {
-    if (m.firestoreId) await deleteMeetingRecord(m.firestoreId);
-  }
+  for (const m of toDelete) { if (m.firestoreId) await deleteMeeting(m.firestoreId); }
   await saveScheduleDay(date);
   closeModal('cancelModal');
-  const dateStr = new Date(date + 'T00:00:00')
-    .toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long' });
+  const dateStr = new Date(date + 'T00:00:00').toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'long' });
   showToast('Cancelled', `Meeting on ${dateStr} has been cancelled.`);
 }
 
-// ── MODAL ────────────────────────────────────────────────────
-function closeModal(id) {
-  document.getElementById(id).classList.remove('active');
-}
-document.getElementById('cancelModal').addEventListener('click', e => {
-  if (e.target === document.getElementById('cancelModal')) closeModal('cancelModal');
-});
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+document.getElementById('cancelModal').addEventListener('click', e => { if (e.target === document.getElementById('cancelModal')) closeModal('cancelModal'); });
 
-// ── TOAST ────────────────────────────────────────────────────
 let _toastTimer;
 function showToast(title, msg, isError = false) {
   const t = document.getElementById('toast');
   document.getElementById('toastTitle').textContent = title;
   document.getElementById('toastMsg').textContent = msg;
-  t.classList.toggle('error-toast', isError);
-  t.classList.add('show');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => t.classList.remove('show'), 5500);
+  t.classList.toggle('error-toast', isError); t.classList.add('show');
+  clearTimeout(_toastTimer); _toastTimer = setTimeout(() => t.classList.remove('show'), 5500);
 }
 
-// ── UTILS ────────────────────────────────────────────────────
-function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── BOOT ─────────────────────────────────────────────────────
-document.getElementById('prevBtn').disabled = true; // start on page 0
 renderSlots();
 initFirebase();
 </script>
